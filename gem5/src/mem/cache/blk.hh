@@ -104,6 +104,7 @@ class CacheBlk : public ReplaceableEntry
 
     /** The current status of this block. @sa CacheBlockStatusBits */
     State status;
+    State dirtyVector;
 
     /** Which curTick() will this block be accessible */
     Tick whenReady;

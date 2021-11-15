@@ -44,6 +44,7 @@
 #include "sim/sim_events.hh"
 #include "sim/sim_exit.hh"
 #include "sim/stat_control.hh"
+#include <stdio.h>
 
 //! Mutex for handling async events.
 std::mutex asyncEventMutex;
@@ -105,6 +106,7 @@ simulate(Tick num_cycles)
     }
 
     inform("Entering event queue @ %d.  Starting simulation...\n", curTick());
+    printf("Entering event queue @ %d.  Starting simulation...\n", (int)curTick());
 
     if (num_cycles < MaxTick - curTick())
         num_cycles = curTick() + num_cycles;

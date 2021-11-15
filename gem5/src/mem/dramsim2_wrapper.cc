@@ -149,7 +149,8 @@ DRAMSim2Wrapper::extractConfig(const std::string& field_name,
 }
 
 void
-DRAMSim2Wrapper::printStats()
+DRAMSim2Wrapper::
+printStats()
 {
     dramsim->printStats(true);
 }

@@ -183,6 +183,7 @@ def drain():
     Drained state.
 
     """
+    print('In def drain()')
 
     # Try to drain all objects. Draining might not be completed unless
     # all objects return that they are drained on the first call. This
@@ -193,18 +194,24 @@ def drain():
         # objects are done without simulation. We need to simulate
         # more if not.
         if _drain_manager.tryDrain():
+            print('_drain_manager.tryDrain() = True')
             return True
+        print('_drain_manager.tryDrain() = False')
 
         # WARNING: if a valid exit event occurs while draining, it
         # will not get returned to the user script
         exit_event = _m5.event.simulate()
-        while exit_event.getCause() != 'Finished drain':
+        print('draining' + str(exit_event.getCause()))
+        #while (exit_event.getCause() != 'Finished drain' ) and (exit_event.getCause() != 'simulate() limit reached' ):
+        while exit_event.getCause() != 'Finished drain' :
             exit_event = simulate()
+            print('draining.. exit_event : ' + str(exit_event.getCause()))
 
         return False
 
     # Don't try to drain a system that is already drained
     is_drained = _drain_manager.isDrained()
+    print('is drained? ' + str(is_drained))
     while not is_drained:
         is_drained = _drain()
 

@@ -165,11 +165,13 @@ BaseCPU::BaseCPU(Params *p, bool is_checker)
     //
     // set up instruction-count-based termination events, if any
     //
+
     if (p->max_insts_any_thread != 0) {
         const char *cause = "a thread reached the max instruction count";
         for (ThreadID tid = 0; tid < numThreads; ++tid)
             scheduleInstStop(tid, p->max_insts_any_thread, cause);
     }
+
 
     // Set up instruction-count-based termination events for SimPoints
     // Typically, there are more than one action points.
