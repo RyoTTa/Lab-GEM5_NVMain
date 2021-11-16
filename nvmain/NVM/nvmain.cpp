@@ -66,6 +66,12 @@ NVMain::NVMain( )
     prefetcher = NULL;
     successfulPrefetches = 0;
     unsuccessfulPrefetches = 0;
+    for(int i= 0 ; i<8 ; i++){
+        updateColumns[i] = 0;
+    }
+    for(int = 0 ; i< 64; i++){
+        updateBit[i] = 0;
+    }
 }
 
 NVMain::~NVMain( )
@@ -409,41 +415,53 @@ bool NVMain::IssueCommand( NVMainRequest *request )
             //Adding Part Start
             
             uint8_t *bitCountData = new uint8_t[request->data.GetSize()];
-            uint8_t *bitCountOldData = new uint8_t[request->oldData.GetSize()];
-
+            //uint8_t bitCountOldData[request->oldData.GetSize()];
+            /*
             for( uint64_t bitCountByte = 0; bitCountByte < request->data.GetSize(); bitCountByte++ )
             {
-                bitCountData[bitCountByte] = request->data.GetByte( bitCountByte );
-                bitCountOldData[bitCountByte] = request->oldData.GetByte( bitCountByte );
+                //bitCountData[bitCountByte] = request->data.GetByte( bitCountByte );
+                //bitCountOldData[bitCountByte] = request->oldData.GetByte( bitCountByte );
             }
-
+            */
 
             std::cout << "New Data : ";
-            for( uint64_t bitCountByte = 0; bitCountByte < request->data.GetSize(); bitCountByte++ )
-            {
-                
-                int mask;
-                bitCountData[bitCountByte] = request->data.GetByte( bitCountByte );
-                for (int8_t temp = 7; temp >= 0; temp--){
-                    mask = 1 << temp;
-                    std::cout << (bitCountData[bitCountByte] & mask ? 1 : 0) ;
+            int columnIndex = 0;
+            int update_check = 0;
+            for( uint64_t bitCountByte = 0; bitCountByte < request->data.GetSize(); bitCountByte++ ) //8개 Columns
+            {   
+                int mask=0;
+                update_check = 0;
+                for( uint64_t ByteIndex = 0; ByteIndex<8; ByteIndex++){ //1개 Column
+                    bitCountData[bitCountByte] = request->data.GetByte( bitCountByte )
+                                           ^ request->oldData.GetByte( bitCountByte );
+                    if(bitCountData[bitCountByte] >= 1){
+                        update_check++;
+                        for(int8_t BitIndex = 7; BitIndex >= 0; BitIndex--){ //1개 Column 내부 1Byte
+                            
+                        }
+                        
+                    }
+
+                    bitCountByte++;
                 }
-                
-                std::cout << std::hex <<bitCountData[bitCountByte];
+                if (update_check >= 1){
+                    updateColumns[columnIndex]++;
+                }
+                columnIndex++;
             }
             std::cout << std::endl;
-
+            /*
             std::cout << "Old Data : ";
             for( uint64_t bitCountByte = 0; bitCountByte < request->oldData.GetSize(); bitCountByte++ )
             {
                 int mask;
-                bitCountOldData[bitCountByte] = request->oldData.GetByte( bitCountByte );
                 for (int8_t temp = 7; temp >= 0; temp--){
                     mask = 1 << temp;
                     std::cout << (bitCountOldData[bitCountByte] & mask ? 1 : 0);
                 }
             }
             std::cout << std::endl;
+            */
             
             //Adding Part End
         }
@@ -559,6 +577,12 @@ void NVMain::RegisterStats( )
     AddStat(totalWriteRequests);
     AddStat(successfulPrefetches);
     AddStat(unsuccessfulPrefetches);
+    for(int i= 0 ; i<8 ; i++){
+        AddStat(updateColumns[i]);
+    }
+    for(int = 0 ; i< 64; i++){
+        AddStat(updateBit[i]);
+    }
 }
 
 void NVMain::CalculateStats( )
