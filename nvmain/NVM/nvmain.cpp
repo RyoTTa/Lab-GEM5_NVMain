@@ -440,7 +440,7 @@ bool NVMain::IssueCommand( NVMainRequest *request )
                 bitCountOldData[bitCountByte] = request->oldData.GetByte( bitCountByte );
                 for (int8_t temp = 7; temp >= 0; temp--){
                     mask = 1 << temp;
-                    std::cout << (bitCountOldData[bitCountByte] & mask ? 1 : 0) ;
+                    std::cout << (bitCountOldData[bitCountByte] & mask ? 1 : 0);
                 }
             }
             std::cout << std::endl;
