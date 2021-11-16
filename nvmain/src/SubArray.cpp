@@ -620,8 +620,49 @@ bool SubArray::Write( NVMainRequest *request )
 
             assert( request->data.GetSize()*8 >= numChangedBits );
             numUnchangedBits = request->data.GetSize()*8 - numChangedBits;
+
+            //std::cout<< "ChangeBitNumber : " << numChangedBits <<std::endl;
+
         }
     }
+    /*
+    //Adding Part Start
+    uint8_t *bitCountNewData = new uint8_t[request->data.GetSize()];
+    uint8_t *bitCountOldData = new uint8_t[request->oldData.GetSize()];
+
+    for( uint64_t bitCountByte = 0; bitCountByte < request->data.GetSize(); bitCountByte++ )
+    {
+        bitCountNewData[bitCountByte] = request->data.GetByte( bitCountByte );
+        bitCountOldData[bitCountByte] = request->oldData.GetByte( bitCountByte );
+    }
+
+
+    std::cout << "New Data : ";
+    for( uint64_t bitCountByte = 0; bitCountByte < request->data.GetSize(); bitCountByte++ )
+    {
+        
+        int mask;
+        bitCountNewData[bitCountByte] = request->data.GetByte( bitCountByte );
+        for (int8_t temp = 7; temp >= 0; temp--){
+            mask = 1 << temp;
+            std::cout << (bitCountNewData[bitCountByte] & mask ? 1 : 0) ;
+        }
+    }
+    std::cout << std::endl;
+
+    std::cout << "Old Data : ";
+    for( uint64_t bitCountByte = 0; bitCountByte < request->oldData.GetSize(); bitCountByte++ )
+    {
+        int mask;
+        bitCountOldData[bitCountByte] = request->oldData.GetByte( bitCountByte );
+        for (int8_t temp = 7; temp >= 0; temp--){
+            mask = 1 << temp;
+            std::cout << (bitCountOldData[bitCountByte] & mask ? 1 : 0) ;
+        }
+    }
+    std::cout << std::endl;
+    //Adding Part End
+    */
 
     /* Determine the write time. */
     writeTimer = WriteCellData( request ); // Assume write-through.
@@ -1606,7 +1647,6 @@ ncounter_t NO_OPT SubArray::CountBitsMLC2( uint8_t value, uint32_t *data, ncount
 ncounter_t NO_OPT SubArray::Count32MLC1( uint32_t data )
 {
     /*
-     *  Count the number of ones in this value using some
      *  bit-manipulation magic.
      */
     uint32_t count = data;

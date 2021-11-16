@@ -406,6 +406,46 @@ bool NVMain::IssueCommand( NVMainRequest *request )
         else
         {
             totalWriteRequests++;
+            //Adding Part Start
+            
+            uint8_t *bitCountData = new uint8_t[request->data.GetSize()];
+            uint8_t *bitCountOldData = new uint8_t[request->oldData.GetSize()];
+
+            for( uint64_t bitCountByte = 0; bitCountByte < request->data.GetSize(); bitCountByte++ )
+            {
+                bitCountData[bitCountByte] = request->data.GetByte( bitCountByte );
+                bitCountOldData[bitCountByte] = request->oldData.GetByte( bitCountByte );
+            }
+
+
+            std::cout << "New Data : ";
+            for( uint64_t bitCountByte = 0; bitCountByte < request->data.GetSize(); bitCountByte++ )
+            {
+                
+                int mask;
+                bitCountData[bitCountByte] = request->data.GetByte( bitCountByte );
+                for (int8_t temp = 7; temp >= 0; temp--){
+                    mask = 1 << temp;
+                    std::cout << (bitCountData[bitCountByte] & mask ? 1 : 0) ;
+                }
+                
+                std::cout << std::hex <<bitCountData[bitCountByte];
+            }
+            std::cout << std::endl;
+
+            std::cout << "Old Data : ";
+            for( uint64_t bitCountByte = 0; bitCountByte < request->oldData.GetSize(); bitCountByte++ )
+            {
+                int mask;
+                bitCountOldData[bitCountByte] = request->oldData.GetByte( bitCountByte );
+                for (int8_t temp = 7; temp >= 0; temp--){
+                    mask = 1 << temp;
+                    std::cout << (bitCountOldData[bitCountByte] & mask ? 1 : 0) ;
+                }
+            }
+            std::cout << std::endl;
+            
+            //Adding Part End
         }
 
         PrintPreTrace( request );
