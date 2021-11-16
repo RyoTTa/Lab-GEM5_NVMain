@@ -90,7 +90,7 @@ class NVMain : public NVMObject
     ncounter_t totalWriteRequests;
     ncounter_t successfulPrefetches;
     ncounter_t unsuccessfulPrefetches;
-    ncounter_t updateColumns[8];
+    ncounter_t updateColumns[9];
     ncounter_t updateBit[64];
 
     unsigned int numChannels;

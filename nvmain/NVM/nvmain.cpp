@@ -66,10 +66,10 @@ NVMain::NVMain( )
     prefetcher = NULL;
     successfulPrefetches = 0;
     unsuccessfulPrefetches = 0;
-    for(int i= 0 ; i<8 ; i++){
+    for(int i= 0 ; i<9 ; i++){
         updateColumns[i] = 0;
     }
-    for(int = 0 ; i< 64; i++){
+    for(int i= 0 ; i< 64; i++){
         updateBit[i] = 0;
     }
 }
@@ -414,54 +414,54 @@ bool NVMain::IssueCommand( NVMainRequest *request )
             totalWriteRequests++;
             //Adding Part Start
             
-            uint8_t *bitCountData = new uint8_t[request->data.GetSize()];
-            //uint8_t bitCountOldData[request->oldData.GetSize()];
-            /*
-            for( uint64_t bitCountByte = 0; bitCountByte < request->data.GetSize(); bitCountByte++ )
-            {
-                //bitCountData[bitCountByte] = request->data.GetByte( bitCountByte );
-                //bitCountOldData[bitCountByte] = request->oldData.GetByte( bitCountByte );
-            }
-            */
+            
 
-            std::cout << "New Data : ";
+            
+
+            //std::cout << "Testing " <<request->data.GetSize()<< std::endl;
+            
+            
+            uint8_t *bitCountData = new uint8_t[request->data.GetSize()];
             int columnIndex = 0;
             int update_check = 0;
-            for( uint64_t bitCountByte = 0; bitCountByte < request->data.GetSize(); bitCountByte++ ) //8개 Columns
+            int columnUpdateNum = 0;
+            int temp_list[8] = {7,6,5,4,3,2,1,0};
+            for( uint64_t bitCountByte = 0; bitCountByte < request->data.GetSize();  ) //8개 Columns
             {   
-                int mask=0;
+                
                 update_check = 0;
+                //std::cout << "First For " << std::endl;
                 for( uint64_t ByteIndex = 0; ByteIndex<8; ByteIndex++){ //1개 Column
+                    //std::cout << "bitCountByte " <<bitCountByte<< std::endl;
                     bitCountData[bitCountByte] = request->data.GetByte( bitCountByte )
                                            ^ request->oldData.GetByte( bitCountByte );
+                
+                    //std::cout << "Second For " << std::endl;
                     if(bitCountData[bitCountByte] >= 1){
                         update_check++;
                         for(int8_t BitIndex = 7; BitIndex >= 0; BitIndex--){ //1개 Column 내부 1Byte
-                            
+                            //std::cout << "Third For " << std::endl;
+                            int mask=0;
+                            mask = 1 << temp_list[BitIndex];
+                            if(bitCountData[bitCountByte] & mask ? 1 : 0) {
+                                ++updateBit[ByteIndex*8 + temp_list[BitIndex]];
+                            }
+                            //std::cout << "Third For End " << std::endl;
                         }
-                        
                     }
-
-                    bitCountByte++;
+                    ++bitCountByte;
+                    //std::cout << "Second For End " << std::endl;
                 }
                 if (update_check >= 1){
-                    updateColumns[columnIndex]++;
+                    ++columnUpdateNum;
                 }
                 columnIndex++;
+                //std::cout << "First For End " << std::endl;
             }
-            std::cout << std::endl;
-            /*
-            std::cout << "Old Data : ";
-            for( uint64_t bitCountByte = 0; bitCountByte < request->oldData.GetSize(); bitCountByte++ )
-            {
-                int mask;
-                for (int8_t temp = 7; temp >= 0; temp--){
-                    mask = 1 << temp;
-                    std::cout << (bitCountOldData[bitCountByte] & mask ? 1 : 0);
-                }
-            }
-            std::cout << std::endl;
-            */
+            //std::cout << "Columns " << columnUpdateNum << std::endl;
+            ++updateColumns[columnUpdateNum];
+            //std::cout << "Columns Data" << updateColumns[columnUpdateNum] << std::endl;
+            
             
             //Adding Part End
         }
@@ -577,10 +577,10 @@ void NVMain::RegisterStats( )
     AddStat(totalWriteRequests);
     AddStat(successfulPrefetches);
     AddStat(unsuccessfulPrefetches);
-    for(int i= 0 ; i<8 ; i++){
+    for(int i= 0 ; i<9 ; i++){
         AddStat(updateColumns[i]);
     }
-    for(int = 0 ; i< 64; i++){
+    for(int i= 0 ; i< 64; i++){
         AddStat(updateBit[i]);
     }
 }
