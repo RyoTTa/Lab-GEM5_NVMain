@@ -338,12 +338,35 @@ NVMainMemory::SetRequestData(NVMainRequest *request, PacketPtr pkt)
             request->data.SetByte(i, *(hostAddr + i));
         }
 
+        //Adding Part Start
+
+        uint8_t *bitCountData = new uint8_t[request->data.GetSize()];
+        int8_t check_upate = 0;
+
+        for( uint64_t bitCountByte = 0; bitCountByte < request->data.GetSize(); bitCountByte++ )
+        {
+            bitCountData[bitCountByte] = request->data.GetByte( bitCountByte )
+                                        ^ request->oldData.GetByte( bitCountByte );
+            if(bitCountData[bitCountByte] >= 1){
+                check_upate++;
+            }
+        }
+        if (check_upate >= 1 ){
+            std::cout<< "Change" <<std::endl;
+        }else{
+            std::cout<< "#########No Change" <<std::endl;
+        }
+        //std::cout<< "ChangeBitNumber : " << numChangedBits <<std::endl;
+
+        //Adding Part End
+
         delete dataPkt;
         delete dataReq;
         delete [] hostAddrT;
         delete [] hostAddr;
     }
 }
+
 
 
 Tick
