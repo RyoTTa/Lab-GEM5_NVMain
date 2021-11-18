@@ -560,10 +560,10 @@ void NVMain::RegisterStats( )
     AddStat(successfulPrefetches);
     AddStat(unsuccessfulPrefetches);
     for(int i= 0 ; i<9 ; i++){
-        AddStat(updateColumns[i]);
+        AddNameStat(updateColumns[i], "updateColumns", std::to_string(i));
     }
     for(int i= 0 ; i< 64; i++){
-        AddStat(updateBit[i]);
+        AddNameStat(updateBit[i], "updateBit", std::to_string(i));
     }
 }
 

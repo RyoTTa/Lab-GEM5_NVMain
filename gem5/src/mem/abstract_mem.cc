@@ -409,6 +409,7 @@ AbstractMemory::access(PacketPtr pkt)
         if (writeOK(pkt)) {
             if (pmemAddr) {
                 //Adding Part Start
+                /*
                 int update_check = 0;
                 for (int i = 0; i < pkt->getSize(); i++){
                     if(*(hostAddr + i) != *(pkt->getConstPtr<uint8_t>() + i)){
@@ -420,6 +421,7 @@ AbstractMemory::access(PacketPtr pkt)
                 }else{
                     std::cout<< "#########No Change in GEM5" <<std::endl;
                 }
+                */
                 //Adding Part End
                 memcpy(hostAddr, pkt->getConstPtr<uint8_t>(), pkt->getSize());
                 DPRINTF(MemoryAccess, "%s wrote %i bytes to address %x\n",

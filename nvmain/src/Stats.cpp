@@ -56,7 +56,7 @@ Stats::~Stats( )
     }
 }
 
-void Stats::addStat( StatType stat, StatType resetValue, std::string statType, size_t typeSize, std::string name, std::string units )
+void Stats::addStat( StatType stat, StatType resetValue, std::string statType, size_t typeSize, std::string name, std::string units, std::string statNameOp, std::string addPart )
 {
     StatBase *sb = new StatBase( );
 
@@ -65,6 +65,8 @@ void Stats::addStat( StatType stat, StatType resetValue, std::string statType, s
     sb->SetResetValue( resetValue );
     sb->SetStatType( statType, typeSize );
     sb->SetUnits( units );
+    sb->SetAdd( addPart );
+    sb->SetStatName( statNameOp );
 
     statList.push_back( sb );
 }
@@ -134,17 +136,37 @@ void StatBase::Reset( )
 
 void StatBase::Print( std::ostream& stream, ncounter_t psInterval )
 {
-    stream << "i" << psInterval << "." << name << " ";
+    
 
-    if( statType == typeid(int).name() ) stream << *(static_cast<int *>(value));
-    else if( statType == typeid(float).name() ) stream << *(static_cast<float *>(value));
-    else if( statType == typeid(double).name() ) stream << *(static_cast<double *>(value));
-    else if( statType == typeid(ncounter_t).name() ) stream << *(static_cast<ncounter_t *>(value));
-    else if( statType == typeid(ncounters_t).name() ) stream << *(static_cast<ncounters_t *>(value));
-    else if( statType == typeid(ncycle_t).name() ) stream << *(static_cast<ncycle_t *>(value));
-    else if( statType == typeid(ncycles_t).name() ) stream << *(static_cast<ncycles_t *>(value));
-    else if( statType == typeid(std::string).name() ) stream << *(static_cast<std::string *>(value));
-    else stream << "?????";
+    if(statNameOp == ""){
+        stream << "i" << psInterval << "." << name << " ";
+
+        if( statType == typeid(int).name() ) stream << *(static_cast<int *>(value));
+        else if( statType == typeid(float).name() ) stream << *(static_cast<float *>(value));
+        else if( statType == typeid(double).name() ) stream << *(static_cast<double *>(value));
+        else if( statType == typeid(ncounter_t).name() ) stream << *(static_cast<ncounter_t *>(value));
+        else if( statType == typeid(ncounters_t).name() ) stream << *(static_cast<ncounters_t *>(value));
+        else if( statType == typeid(ncycle_t).name() ) stream << *(static_cast<ncycle_t *>(value));
+        else if( statType == typeid(ncycles_t).name() ) stream << *(static_cast<ncycles_t *>(value));
+        else if( statType == typeid(std::string).name() ) stream << *(static_cast<std::string *>(value));
+        else stream << "?????";
+    }else{
+        std::reverse(name.begin(), name.end());
+        name = name.substr(name.find("."),name.size());
+        std::reverse(name.begin(), name.end());
+
+        stream << "i" << psInterval<< "." << name << statNameOp << "[" << addPart << "]" << " ";
+
+        if( statType == typeid(int).name() ) stream << *(static_cast<int *>(value));
+        else if( statType == typeid(float).name() ) stream << *(static_cast<float *>(value));
+        else if( statType == typeid(double).name() ) stream << *(static_cast<double *>(value));
+        else if( statType == typeid(ncounter_t).name() ) stream << *(static_cast<ncounter_t *>(value));
+        else if( statType == typeid(ncounters_t).name() ) stream << *(static_cast<ncounters_t *>(value));
+        else if( statType == typeid(ncycle_t).name() ) stream << *(static_cast<ncycle_t *>(value));
+        else if( statType == typeid(ncycles_t).name() ) stream << *(static_cast<ncycles_t *>(value));
+        else if( statType == typeid(std::string).name() ) stream << *(static_cast<std::string *>(value));
+        else stream << "?????";
+    }
 
     stream << units << std::endl;
 }

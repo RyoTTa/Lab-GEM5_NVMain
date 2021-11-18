@@ -37,13 +37,17 @@
 
 #define AddStat(STAT)                       \
         {                                   \
-            _AddStat(STAT, "")              \
+            _AddStat(STAT, "", "", "")          \
         }
 #define AddUnitStat(STAT, UNITS)            \
         {                                   \
-            _AddStat(STAT, UNITS)           \
+            _AddStat(STAT, UNITS, "", "")           \
         }
-#define _AddStat(STAT, UNITS)                                                 \
+#define AddNameStat(STAT, STATNAME, ADDPART)           \
+        {                                   \
+            _AddStat(STAT, "", STATNAME, ADDPART)         \
+        }
+#define _AddStat(STAT, UNITS, STATNAME, ADDPART)                                        \
         {                                                                     \
             uint8_t *__resetValue = new uint8_t [sizeof(STAT)];               \
             memcpy(__resetValue, static_cast<StatType>(&STAT), sizeof(STAT)); \
@@ -52,7 +56,9 @@
                                       typeid(STAT).name(),                    \
                                       sizeof(STAT),                           \
                                       StatName() + "." + #STAT,               \
-                                      UNITS);                                 \
+                                      UNITS,                                  \
+                                      STATNAME,                               \
+                                      ADDPART);                               \
         }
 #define RemoveStat(STAT) (this->GetStats()->removeStat(static_cast<StatType>(&STAT)))
 
@@ -68,6 +74,7 @@
 #include <typeinfo>
 #include <vector>
 #include <cstring>
+#include <algorithm>
 
 #include "include/NVMTypes.h"
 
@@ -95,6 +102,12 @@ class StatBase
     std::string GetUnits( ) { return units; }
     void SetUnits( std::string u ) { units = u; }
 
+    std::string GetAdd( ) { return addPart; }
+    void SetAdd(std::string add) {addPart = add;}
+
+    std::string GetStatName( ) { return statNameOp; }
+    void SetStatName(std::string op) {statNameOp = op;}
+
     void SetResetValue( StatType rval ) { resetValue = rval; }
     void *GetResetValue( ) { return resetValue; }
 
@@ -103,7 +116,7 @@ class StatBase
     std::string GetTypeName() { return statType; }
 
   private:
-    std::string name, statType, units;
+    std::string name, statType, units, statNameOp, addPart;
     size_t typeSize;
     StatType resetValue;
     StatType value;
@@ -115,7 +128,7 @@ class Stats
     Stats( );
     ~Stats( );
 
-    void addStat( StatType stat, StatType resetValue, std::string statType, size_t typeSize, std::string name, std::string units );
+    void addStat( StatType stat, StatType resetValue, std::string statType, size_t typeSize, std::string name, std::string units, std::string statNameOp,std::string addPart );
     void removeStat( StatType stat );
     StatType getStat( std::string name );
 

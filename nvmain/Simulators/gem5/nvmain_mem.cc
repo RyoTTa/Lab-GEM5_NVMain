@@ -339,6 +339,7 @@ NVMainMemory::SetRequestData(NVMainRequest *request, PacketPtr pkt)
         }
 
         //Adding Part Start
+        /*
     
         uint8_t *bitCountData = new uint8_t[request->data.GetSize()];
         int8_t check_upate = 0;
@@ -362,7 +363,7 @@ NVMainMemory::SetRequestData(NVMainRequest *request, PacketPtr pkt)
             std::cout<< "#########No Change in NVMain" <<std::endl;
         }
         //std::cout<< "ChangeBitNumber : " << numChangedBits <<std::endl;
-    
+        */
         //Adding Part End
 
         delete dataPkt;
