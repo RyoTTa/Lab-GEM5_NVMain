@@ -412,14 +412,8 @@ bool NVMain::IssueCommand( NVMainRequest *request )
         else
         {
             totalWriteRequests++;
+            
             //Adding Part Start
-            
-            
-
-            
-
-            //std::cout << "Testing " <<request->data.GetSize()<< std::endl;
-            
             
             uint8_t *bitCountData = new uint8_t[request->data.GetSize()];
             int columnIndex = 0;
@@ -430,39 +424,27 @@ bool NVMain::IssueCommand( NVMainRequest *request )
             {   
                 
                 update_check = 0;
-                //std::cout << "First For " << std::endl;
                 for( uint64_t ByteIndex = 0; ByteIndex<8; ByteIndex++){ //1개 Column
-                    //std::cout << "bitCountByte " <<bitCountByte<< std::endl;
                     bitCountData[bitCountByte] = request->data.GetByte( bitCountByte )
                                            ^ request->oldData.GetByte( bitCountByte );
-                
-                    //std::cout << "Second For " << std::endl;
                     if(bitCountData[bitCountByte] >= 1){
                         update_check++;
                         for(int8_t BitIndex = 7; BitIndex >= 0; BitIndex--){ //1개 Column 내부 1Byte
-                            //std::cout << "Third For " << std::endl;
                             int mask=0;
                             mask = 1 << temp_list[BitIndex];
                             if(bitCountData[bitCountByte] & mask ? 1 : 0) {
                                 ++updateBit[ByteIndex*8 + temp_list[BitIndex]];
                             }
-                            //std::cout << "Third For End " << std::endl;
                         }
                     }
                     ++bitCountByte;
-                    //std::cout << "Second For End " << std::endl;
                 }
                 if (update_check >= 1){
                     ++columnUpdateNum;
                 }
                 columnIndex++;
-                //std::cout << "First For End " << std::endl;
             }
-            //std::cout << "Columns " << columnUpdateNum << std::endl;
             ++updateColumns[columnUpdateNum];
-            //std::cout << "Columns Data" << updateColumns[columnUpdateNum] << std::endl;
-            
-            
             //Adding Part End
         }
 

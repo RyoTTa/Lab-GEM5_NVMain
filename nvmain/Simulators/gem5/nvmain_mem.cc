@@ -357,9 +357,9 @@ NVMainMemory::SetRequestData(NVMainRequest *request, PacketPtr pkt)
         }
 
         if (check_upate >= 1 ){
-            std::cout<< "Change" <<std::endl;
+            std::cout<< "Change in NVMain" <<std::endl;
         }else{
-            std::cout<< "#########No Change" <<std::endl;
+            std::cout<< "#########No Change in NVMain" <<std::endl;
         }
         //std::cout<< "ChangeBitNumber : " << numChangedBits <<std::endl;
     
