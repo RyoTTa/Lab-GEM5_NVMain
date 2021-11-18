@@ -339,7 +339,7 @@ NVMainMemory::SetRequestData(NVMainRequest *request, PacketPtr pkt)
         }
 
         //Adding Part Start
-
+    
         uint8_t *bitCountData = new uint8_t[request->data.GetSize()];
         int8_t check_upate = 0;
 
@@ -351,13 +351,18 @@ NVMainMemory::SetRequestData(NVMainRequest *request, PacketPtr pkt)
                 check_upate++;
             }
         }
+
+        if (pkt->cmd == MemCmd::CleanEvict || pkt->cmd == MemCmd::WritebackClean) {
+            std::cout << "CleanEvict! OR WritebackClean" << std::endl;
+        }
+
         if (check_upate >= 1 ){
             std::cout<< "Change" <<std::endl;
         }else{
             std::cout<< "#########No Change" <<std::endl;
         }
         //std::cout<< "ChangeBitNumber : " << numChangedBits <<std::endl;
-
+    
         //Adding Part End
 
         delete dataPkt;
