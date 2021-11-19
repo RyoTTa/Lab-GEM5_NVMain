@@ -317,6 +317,28 @@ AbstractMemory::checkLockedAddrList(PacketPtr pkt)
         }                                                                      \
     } while (0)
 
+#define TRACE_DIRTY(A)                                                 \
+    do {                                                                \
+        switch (pkt->getSize()) {                                       \
+          CASE(A, uint64_t);                                            \
+          CASE(A, uint32_t);                                            \
+          CASE(A, uint16_t);                                            \
+          CASE(A, uint8_t);                                             \
+          default:                                                      \
+            DPRINTFN("New Data %s from %s of size %i on address 0x%x %c\n",\
+                    A, system()->getMasterName(pkt->req->masterId()),          \
+                    pkt->getSize(), pkt->getAddr(),                            \
+                    pkt->req->isUncacheable() ? 'U' : 'C');                    \
+            DDUMPN(pkt->getConstPtr<uint8_t>(), pkt->getSize());  \
+                                                                               \
+            DPRINTFN("Old Data %s from %s of size %i on address 0x%x %c\n",\
+                    A, system()->getMasterName(pkt->req->masterId()),          \
+                    pkt->getSize(), pkt->getAddr(),                            \
+                    pkt->req->isUncacheable() ? 'U' : 'C');                    \
+            DDUMPN(hostAddr, pkt->getSize());                     \
+        }                                                                      \
+    } while (0)
+
 #else
 
 #define TRACE_PACKET(A)
@@ -410,6 +432,8 @@ AbstractMemory::access(PacketPtr pkt)
             if (pmemAddr) {
                 //Adding Part Start
                 /*
+
+                
                 int update_check = 0;
                 for (int i = 0; i < pkt->getSize(); i++){
                     if(*(hostAddr + i) != *(pkt->getConstPtr<uint8_t>() + i)){
@@ -421,6 +445,8 @@ AbstractMemory::access(PacketPtr pkt)
                 }else{
                     std::cout<< "#########No Change in GEM5" <<std::endl;
                 }
+                //TRACE_DIRTY("WRITE");
+                
                 */
                 //Adding Part End
                 memcpy(hostAddr, pkt->getConstPtr<uint8_t>(), pkt->getSize());
