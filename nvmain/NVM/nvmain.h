@@ -92,6 +92,8 @@ class NVMain : public NVMObject
     ncounter_t unsuccessfulPrefetches;
     ncounter_t updateColumns[9];
     ncounter_t updateBit[64];
+    ncounter_t ReadModifiedUpdateBit;
+    ncounter_t VectorUpdateBit;
 
     unsigned int numChannels;
     double syncValue;
