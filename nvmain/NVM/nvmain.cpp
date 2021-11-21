@@ -417,7 +417,7 @@ bool NVMain::IssueCommand( NVMainRequest *request )
             
             //Adding Part Start
             
-            uint8_t *bitCountData = new uint8_t[request->data.GetSize()];
+            uint8_t *bitCountFlipData = new uint8_t[request->data.GetSize()];
             int columnIndex = 0;
             int update_check = 0;
             int columnUpdateNum = 0;
@@ -425,8 +425,9 @@ bool NVMain::IssueCommand( NVMainRequest *request )
 
             int columUpdateVector[8] = {0,};
             int columnVectorNum = 0;
-            int bitUpdateVector[8] = {0,};
-            int bitVectorNum=0;
+            int bitUpdateVector[16] = {0,};
+            int bitVectorNum_4=0;
+            int bitVectorNum_8=0;
 
             uint64_t tempForReadModifiedUpdateBit = 0;
             uint64_t tempForVectorUpdateBit = 0;
@@ -434,15 +435,15 @@ bool NVMain::IssueCommand( NVMainRequest *request )
             for( uint64_t bitCountByte = 0; bitCountByte < request->data.GetSize();){ //8개 Columns(64 Byte)
                 update_check = 0;
                 for( uint64_t ByteIndex = 0; ByteIndex<8; ByteIndex++){ //1개 Column (8 Byte)
-                    bitCountData[bitCountByte] = request->data.GetByte( bitCountByte ) ^ request->oldData.GetByte( bitCountByte );
-                    if(bitCountData[bitCountByte] >= 1){
+                    bitCountFlipData[bitCountByte] = request->data.GetByte( bitCountByte ) ^ request->oldData.GetByte( bitCountByte );
+                    if(bitCountFlipData[bitCountByte] >= 1){
                         update_check++;
                         for(int8_t BitIndex = 7; BitIndex >= 0; BitIndex--){ //1개 Column 내부 1Byte
                             int mask=0;
                             mask = 1 << temp_list[BitIndex];
-                            if(bitCountData[bitCountByte] & mask ? 1 : 0) {
+                            if(bitCountFlipData[bitCountByte] & mask ? 1 : 0) {
                                 updateBit[ByteIndex*8 + temp_list[BitIndex]]++;
-                                bitUpdateVector[(ByteIndex*8 + temp_list[BitIndex])/8] = 1;
+                                bitUpdateVector[(ByteIndex*8 + temp_list[BitIndex])/4] = 1;
                                 tempForReadModifiedUpdateBit++;
                             }
                         }
@@ -456,18 +457,24 @@ bool NVMain::IssueCommand( NVMainRequest *request )
                 columnIndex++;
             }
             ++updateColumns[columnUpdateNum];
-            //Adding Part End
+            
 
             for( int8_t i = 0; i < 8; i++){
                 if (columUpdateVector[i] == 1)
                     columnVectorNum++;
-                if (bitUpdateVector[i] == 1)
-                    bitVectorNum++;
             }
-            tempForVectorUpdateBit = columnVectorNum * (8 * bitVectorNum);
+            for( int8_t i = 0; i < 14; i++){
+                if (bitUpdateVector[i] == 1)
+                    bitVectorNum_4++;
+            }
+            if (bitUpdateVector[14] == 1 || bitUpdateVector[15] == 1)
+                bitVectorNum_8++;
+            tempForVectorUpdateBit = columnVectorNum * (4 * bitVectorNum_4);
+            tempForVectorUpdateBit += columnVectorNum * (8 * bitVectorNum_8);
             
             ReadModifiedUpdateBit += tempForReadModifiedUpdateBit;
             VectorUpdateBit += tempForVectorUpdateBit;
+            //Adding Part End
 
 
         }
