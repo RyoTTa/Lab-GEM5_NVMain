@@ -447,7 +447,7 @@ bool NVMain::IssueCommand( NVMainRequest *request )
                     if(bitCountFlipData[bitCountByte] >= 1){
                         update_check++;
                         for(int8_t BitIndex = 7; BitIndex >= 0; BitIndex--){ //1개 Column 내부 1Byte
-                            int8_t mask=0;
+                            int mask=0;
                             mask = 1 << temp_list[BitIndex];
                             if(bitCountFlipData[bitCountByte] & mask ? 1 : 0) {
                                 updateBit[ByteIndex*8 + temp_list[BitIndex]]++;
@@ -547,7 +547,12 @@ bool NVMain::IssueCommand( NVMainRequest *request )
                 }else if(columnVectorNum == 8){
                     CompressUpdateBit += tempForVectorUpdateBit;
                 }
-            }else{
+            }else if(CompressDataSize <= 60){
+                CompressUpdateBit += tempForVectorUpdateBit;
+            }else if(CompressDataSize <= 61){
+                CompressUpdateBit += columnVectorNum * 64;
+            }
+            else{
                 compressByte[4]++;
                 CompressUpdateBit += 64*8;
             }
@@ -583,11 +588,10 @@ uint64_t NVMain::GetUpdateBitNum(uint8_t *flipcacheline, uint8_t granulatiry, ui
             if(flipcacheline[bitCountByte] >= 1){
                 update_check++;
                 for(int8_t BitIndex = 7; BitIndex >= 0; BitIndex--){ //1개 Column 내부 1Byte
-                    int8_t mask=0;
+                    int mask=0;
                     mask = 1 << temp_list[BitIndex];
                     if(flipcacheline[bitCountByte] & mask ? 1 : 0) {
-                        updateBit[ByteIndex*8 + temp_list[BitIndex]]++;
-                        bitUpdateVector[(ByteIndex*8 + temp_list[BitIndex])/(64/granulatiry)] = 1;
+                        bitUpdateVector[(ByteIndex*8 + temp_list[BitIndex])/granulatiry] = 1;
                     }
                 }
             }
@@ -599,7 +603,6 @@ uint64_t NVMain::GetUpdateBitNum(uint8_t *flipcacheline, uint8_t granulatiry, ui
         }
         columnIndex++;
     }
-    ++updateColumns[columnUpdateNum];
     
 
     for( int8_t i = 0; i < 8; i++){
