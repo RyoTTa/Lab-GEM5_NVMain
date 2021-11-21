@@ -66,8 +66,11 @@ class NVMain : public NVMObject
 
     void IssuePrefetch( NVMainRequest *request );
     bool IssueCommand( NVMainRequest *request );
+    uint32_t BDI(uint8_t *cacheline, uint32_t data_size);
+    uint32_t getDataSize(uint64_t data);
     bool IssueAtomic( NVMainRequest *request );
     bool IsIssuable( NVMainRequest *request, FailReason *reason );
+    uint64_t GetUpdateBitNum(uint8_t *flipcacheline, uint8_t granulatiry, uint8_t size);
 
     bool RequestComplete( NVMainRequest *request );
 
@@ -92,8 +95,10 @@ class NVMain : public NVMObject
     ncounter_t unsuccessfulPrefetches;
     ncounter_t updateColumns[9];
     ncounter_t updateBit[64];
+    ncounter_t compressByte[5];
     ncounter_t ReadModifiedUpdateBit;
     ncounter_t VectorUpdateBit;
+    ncounter_t CompressUpdateBit;
 
     unsigned int numChannels;
     double syncValue;
@@ -107,6 +112,8 @@ class NVMain : public NVMObject
 
     void PrintPreTrace( NVMainRequest *request );
     void GeneratePrefetches( NVMainRequest *request, std::vector<NVMAddress>& prefetchList );
+
+    bool do_verify = true;
 };
 
 };
