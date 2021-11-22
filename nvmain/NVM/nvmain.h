@@ -95,7 +95,7 @@ class NVMain : public NVMObject
     ncounter_t unsuccessfulPrefetches;
     ncounter_t updateColumns[9];
     ncounter_t updateBit[64];
-    ncounter_t compressByte[5];
+    ncounter_t compressByte[7];
     ncounter_t ReadModifiedUpdateBit;
     ncounter_t VectorUpdateBit;
     ncounter_t CompressUpdateBit;

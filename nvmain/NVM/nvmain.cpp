@@ -72,7 +72,7 @@ NVMain::NVMain( )
     for(int i= 0 ; i< 64; i++){
         updateBit[i] = 0;
     }
-    for(int i= 0 ; i< 5; i++){
+    for(int i= 0 ; i< 7; i++){
         compressByte[i] = 0;
     }
     ReadModifiedUpdateBit = 0;
@@ -485,76 +485,71 @@ bool NVMain::IssueCommand( NVMainRequest *request )
             //Adding Part End
 
             uint32_t CompressDataSize = BDI(NewData, request->data.GetSize());
+            if(columnVectorNum != 0){
+                if (CompressDataSize <=32){
+                    compressByte[0]++;
+                    if (columnVectorNum <= 3){
+                        CompressUpdateBit += tempForReadModifiedUpdateBit;
+                    }else if(columnVectorNum <= 5){
+                        CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 2, request->data.GetSize());
+                    }else if(columnVectorNum == 6){
+                        CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 4, request->data.GetSize());
+                    }else if(columnVectorNum == 7){
+                        CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 8, request->data.GetSize());
+                    }else if(columnVectorNum == 8){
+                        CompressUpdateBit += tempForVectorUpdateBit;
+                    }
+                }else if(CompressDataSize <= 40){
+                    compressByte[1]++;
+                    if (columnVectorNum <= 2){
+                        CompressUpdateBit += tempForReadModifiedUpdateBit;
+                    }else if(columnVectorNum <= 5){
+                        CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 2, request->data.GetSize());
+                    }else if(columnVectorNum == 6){
+                        CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 4, request->data.GetSize());
+                    }else if(columnVectorNum == 7){
+                        CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 8, request->data.GetSize());
+                    }else if(columnVectorNum == 8){
+                        CompressUpdateBit += tempForVectorUpdateBit;
+                    }
 
-            if (CompressDataSize <=32){
-                compressByte[0]++;
-                if (columnVectorNum == 0){
-
-                }else if (columnVectorNum <= 3){
-                    CompressUpdateBit += tempForReadModifiedUpdateBit;
-                }else if(columnVectorNum <= 5){
-                    CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 2, request->data.GetSize());
-                }else if(columnVectorNum == 6){
-                    CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 4, request->data.GetSize());
-                }else if(columnVectorNum == 7){
-                    CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 8, request->data.GetSize());
-                }else if(columnVectorNum == 8){
+                }else if(CompressDataSize <= 48){
+                    compressByte[2]++;
+                    if(columnVectorNum <= 1){
+                        CompressUpdateBit += tempForReadModifiedUpdateBit;
+                    }else if(columnVectorNum <= 3){
+                        CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 2, request->data.GetSize());
+                    }else if(columnVectorNum <= 6){
+                        CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 4, request->data.GetSize());
+                    }else if(columnVectorNum == 7){
+                        CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 8, request->data.GetSize());
+                    }else if(columnVectorNum == 8){
+                        CompressUpdateBit += tempForVectorUpdateBit;
+                    }
+                }else if(CompressDataSize <= 56){
+                    compressByte[3]++;
+                    if(columnVectorNum <= 1){
+                        CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 2, request->data.GetSize());
+                    }else if(columnVectorNum <= 3){
+                        CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 4, request->data.GetSize());
+                    }else if(columnVectorNum <= 5){
+                        CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 8, request->data.GetSize());
+                    }else if(columnVectorNum <= 7){
+                        CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 16, request->data.GetSize());
+                    }else if(columnVectorNum == 8){
+                        CompressUpdateBit += tempForVectorUpdateBit;
+                    }
+                }else if(CompressDataSize <= 61){
+                    compressByte[4]++;
                     CompressUpdateBit += tempForVectorUpdateBit;
+                }else if(CompressDataSize <= 63){
+                    compressByte[5]++;
+                    CompressUpdateBit += columnVectorNum * 64;
                 }
-            }else if(CompressDataSize <= 40){
-                compressByte[1]++;
-                if (columnVectorNum == 0){
-
-                }else if (columnVectorNum <= 2){
-                    CompressUpdateBit += tempForReadModifiedUpdateBit;
-                }else if(columnVectorNum <= 5){
-                    CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 2, request->data.GetSize());
-                }else if(columnVectorNum == 6){
-                    CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 4, request->data.GetSize());
-                }else if(columnVectorNum == 7){
-                    CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 8, request->data.GetSize());
-                }else if(columnVectorNum == 8){
-                    CompressUpdateBit += tempForVectorUpdateBit;
+                else{
+                    compressByte[6]++;
+                    CompressUpdateBit += 64*8;
                 }
-
-            }else if(CompressDataSize <= 48){
-                compressByte[2]++;
-                if (columnVectorNum == 0){
-
-                }else if(columnVectorNum <= 1){
-                    CompressUpdateBit += tempForReadModifiedUpdateBit;
-                }else if(columnVectorNum <= 3){
-                    CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 2, request->data.GetSize());
-                }else if(columnVectorNum <= 6){
-                    CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 4, request->data.GetSize());
-                }else if(columnVectorNum == 7){
-                    CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 8, request->data.GetSize());
-                }else if(columnVectorNum == 8){
-                    CompressUpdateBit += tempForVectorUpdateBit;
-                }
-            }else if(CompressDataSize <= 56){
-                compressByte[3]++;
-                if (columnVectorNum == 0){
-
-                }else if(columnVectorNum <= 1){
-                    CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 2, request->data.GetSize());
-                }else if(columnVectorNum <= 3){
-                    CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 4, request->data.GetSize());
-                }else if(columnVectorNum <= 5){
-                    CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 8, request->data.GetSize());
-                }else if(columnVectorNum <= 7){
-                    CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 16, request->data.GetSize());
-                }else if(columnVectorNum == 8){
-                    CompressUpdateBit += tempForVectorUpdateBit;
-                }
-            }else if(CompressDataSize <= 60){
-                CompressUpdateBit += tempForVectorUpdateBit;
-            }else if(CompressDataSize <= 61){
-                CompressUpdateBit += columnVectorNum * 64;
-            }
-            else{
-                compressByte[4]++;
-                CompressUpdateBit += 64*8;
             }
 
 
@@ -1114,8 +1109,8 @@ void NVMain::RegisterStats( )
     AddStat(ReadModifiedUpdateBit);
     AddStat(VectorUpdateBit)
     AddStat(CompressUpdateBit)
-    for(int i= 0 ; i< 5; i++){
-        AddNameStat(compressByte[i], "compressByteSize", std::to_string(i+1));
+    for(int i= 0 ; i< 7; i++){
+        AddNameStat(compressByte[i], "compressByteSize", std::to_string(i));
     }
 }
 
