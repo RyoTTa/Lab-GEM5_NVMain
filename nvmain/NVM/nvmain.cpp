@@ -480,62 +480,155 @@ bool NVMain::IssueCommand( NVMainRequest *request )
             tempForVectorUpdateBit = columnVectorNum * (4 * bitVectorNum_4);
             tempForVectorUpdateBit += columnVectorNum * (8 * bitVectorNum_8);
             
+            
             ReadModifiedUpdateBit += tempForReadModifiedUpdateBit;
-            VectorUpdateBit += tempForVectorUpdateBit;
+            
             //Adding Part End
-
+            
             uint32_t CompressDataSize = BDI(NewData, request->data.GetSize());
-            if(columnVectorNum != 0){
+            /*
+            if(columnUpdateNum != 0){
                 if (CompressDataSize <=32){
                     compressByte[0]++;
-                    if (columnVectorNum <= 3){
+                    if (columnUpdateNum <= 3){
                         CompressUpdateBit += tempForReadModifiedUpdateBit;
-                    }else if(columnVectorNum <= 5){
+                    }else if(columnUpdateNum <= 5){
                         CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 2, request->data.GetSize());
-                    }else if(columnVectorNum == 6){
+                    }else if(columnUpdateNum == 6){
                         CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 4, request->data.GetSize());
-                    }else if(columnVectorNum == 7){
+                    }else if(columnUpdateNum == 7){
                         CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 8, request->data.GetSize());
-                    }else if(columnVectorNum == 8){
+                    }else if(columnUpdateNum == 8){
                         CompressUpdateBit += tempForVectorUpdateBit;
                     }
                 }else if(CompressDataSize <= 40){
                     compressByte[1]++;
-                    if (columnVectorNum <= 2){
+                    if (columnUpdateNum <= 2){
                         CompressUpdateBit += tempForReadModifiedUpdateBit;
-                    }else if(columnVectorNum <= 5){
+                    }else if(columnUpdateNum <= 5){
                         CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 2, request->data.GetSize());
-                    }else if(columnVectorNum == 6){
+                    }else if(columnUpdateNum == 6){
                         CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 4, request->data.GetSize());
-                    }else if(columnVectorNum == 7){
+                    }else if(columnUpdateNum == 7){
                         CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 8, request->data.GetSize());
-                    }else if(columnVectorNum == 8){
+                    }else if(columnUpdateNum == 8){
                         CompressUpdateBit += tempForVectorUpdateBit;
                     }
 
                 }else if(CompressDataSize <= 48){
                     compressByte[2]++;
-                    if(columnVectorNum <= 1){
+                    if(columnUpdateNum <= 1){
                         CompressUpdateBit += tempForReadModifiedUpdateBit;
-                    }else if(columnVectorNum <= 3){
+                    }else if(columnUpdateNum <= 3){
                         CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 2, request->data.GetSize());
-                    }else if(columnVectorNum <= 6){
+                    }else if(columnUpdateNum <= 6){
                         CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 4, request->data.GetSize());
-                    }else if(columnVectorNum == 7){
+                    }else if(columnUpdateNum == 7){
                         CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 8, request->data.GetSize());
-                    }else if(columnVectorNum == 8){
+                    }else if(columnUpdateNum == 8){
                         CompressUpdateBit += tempForVectorUpdateBit;
                     }
                 }else if(CompressDataSize <= 56){
                     compressByte[3]++;
-                    if(columnVectorNum <= 1){
+                    if(columnUpdateNum <= 1){
                         CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 2, request->data.GetSize());
-                    }else if(columnVectorNum <= 3){
+                    }else if(columnUpdateNum <= 3){
                         CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 4, request->data.GetSize());
-                    }else if(columnVectorNum <= 5){
+                    }else if(columnUpdateNum <= 5){
                         CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 8, request->data.GetSize());
-                    }else if(columnVectorNum <= 7){
+                    }else if(columnUpdateNum <= 7){
                         CompressUpdateBit += GetUpdateBitNum(bitCountFlipData, 16, request->data.GetSize());
+                    }else if(columnUpdateNum == 8){
+                        CompressUpdateBit += tempForVectorUpdateBit;
+                    }
+                }else if(CompressDataSize <= 61){
+                    compressByte[4]++;
+                    CompressUpdateBit += tempForVectorUpdateBit;
+                }else if(CompressDataSize <= 63){
+                    compressByte[5]++;
+                    CompressUpdateBit += columnUpdateNum * 64;
+                }
+                else{
+                    compressByte[6]++;
+                    CompressUpdateBit += 64*8;
+                }
+            */
+            if(columnVectorNum != 0){
+                if (CompressDataSize <=64){
+                    compressByte[0]++;
+                    if (columnVectorNum == 1){
+                        CompressUpdateBit += GetUpdateBitNum_Merge(bitCountFlipData, 1, 1, 4,request->data.GetSize());
+                    }else if(columnVectorNum == 2){
+                        CompressUpdateBit += GetUpdateBitNum_Merge(bitCountFlipData, 1, 2, 4,request->data.GetSize());
+                    }else if(columnVectorNum == 3){
+                        CompressUpdateBit += GetUpdateBitNum_Merge(bitCountFlipData, 1, 3, 4,request->data.GetSize());
+                    }else if(columnVectorNum == 4){
+                        CompressUpdateBit += GetUpdateBitNum_Merge(bitCountFlipData, 1, 4, 4,request->data.GetSize());
+                    }else if(columnVectorNum == 5){
+                        CompressUpdateBit += GetUpdateBitNum_Merge(bitCountFlipData, 1, 5, 3,request->data.GetSize());
+                    }else if(columnVectorNum == 6){
+                        CompressUpdateBit += GetUpdateBitNum_Merge(bitCountFlipData, 1, 6, 2,request->data.GetSize());
+                    }else if(columnVectorNum == 7){
+                        CompressUpdateBit += GetUpdateBitNum_Merge(bitCountFlipData, 1, 7, 1,request->data.GetSize());
+                    }else if(columnVectorNum == 8){
+                        CompressUpdateBit += tempForVectorUpdateBit;
+                    }
+                    
+                }else if(CompressDataSize <= 37){
+                    compressByte[1]++;
+                    if (columnVectorNum == 1){
+                        CompressUpdateBit += GetUpdateBitNum_Merge(bitCountFlipData, 1, 1, 3,request->data.GetSize());
+                    }else if(columnVectorNum == 2){
+                        CompressUpdateBit += GetUpdateBitNum_Merge(bitCountFlipData, 1, 2, 3,request->data.GetSize());
+                    }else if(columnVectorNum == 3){
+                        CompressUpdateBit += GetUpdateBitNum_Merge(bitCountFlipData, 1, 3, 3,request->data.GetSize());
+                    }else if(columnVectorNum == 4){
+                        CompressUpdateBit += GetUpdateBitNum_Merge(bitCountFlipData, 1, 4, 3,request->data.GetSize());
+                    }else if(columnVectorNum == 5){
+                        CompressUpdateBit += GetUpdateBitNum_Merge(bitCountFlipData, 1, 5, 3,request->data.GetSize());
+                    }else if(columnVectorNum == 6){
+                        CompressUpdateBit += GetUpdateBitNum_Merge(bitCountFlipData, 1, 6, 2,request->data.GetSize());
+                    }else if(columnVectorNum == 7){
+                        CompressUpdateBit += GetUpdateBitNum_Merge(bitCountFlipData, 1, 7, 1,request->data.GetSize());
+                    }else if(columnVectorNum == 8){
+                        CompressUpdateBit += tempForVectorUpdateBit;
+                    }
+
+                }else if(CompressDataSize <= 45){
+                    compressByte[2]++;
+                    if (columnVectorNum == 1){
+                        CompressUpdateBit += GetUpdateBitNum_Merge(bitCountFlipData, 1, 1, 2,request->data.GetSize());
+                    }else if(columnVectorNum == 2){
+                        CompressUpdateBit += GetUpdateBitNum_Merge(bitCountFlipData, 1, 2, 2,request->data.GetSize());
+                    }else if(columnVectorNum == 3){
+                        CompressUpdateBit += GetUpdateBitNum_Merge(bitCountFlipData, 1, 3, 2,request->data.GetSize());
+                    }else if(columnVectorNum == 4){
+                        CompressUpdateBit += GetUpdateBitNum_Merge(bitCountFlipData, 1, 4, 2,request->data.GetSize());
+                    }else if(columnVectorNum == 5){
+                        CompressUpdateBit += GetUpdateBitNum_Merge(bitCountFlipData, 1, 5, 2,request->data.GetSize());
+                    }else if(columnVectorNum == 6){
+                        CompressUpdateBit += GetUpdateBitNum_Merge(bitCountFlipData, 1, 6, 2,request->data.GetSize());
+                    }else if(columnVectorNum == 7){
+                        CompressUpdateBit += GetUpdateBitNum_Merge(bitCountFlipData, 1, 7, 1,request->data.GetSize());
+                    }else if(columnVectorNum == 8){
+                        CompressUpdateBit += tempForVectorUpdateBit;
+                    }
+                }else if(CompressDataSize <= 53){
+                    compressByte[3]++;
+                    if (columnVectorNum == 1){
+                        CompressUpdateBit += GetUpdateBitNum_Merge(bitCountFlipData, 1, 1, 1,request->data.GetSize());
+                    }else if(columnVectorNum == 2){
+                        CompressUpdateBit += GetUpdateBitNum_Merge(bitCountFlipData, 1, 2, 1,request->data.GetSize());
+                    }else if(columnVectorNum == 3){
+                        CompressUpdateBit += GetUpdateBitNum_Merge(bitCountFlipData, 1, 3, 1,request->data.GetSize());
+                    }else if(columnVectorNum == 4){
+                        CompressUpdateBit += GetUpdateBitNum_Merge(bitCountFlipData, 1, 4, 1,request->data.GetSize());
+                    }else if(columnVectorNum == 5){
+                        CompressUpdateBit += GetUpdateBitNum_Merge(bitCountFlipData, 1, 5, 1,request->data.GetSize());
+                    }else if(columnVectorNum == 6){
+                        CompressUpdateBit += GetUpdateBitNum_Merge(bitCountFlipData, 1, 6, 1,request->data.GetSize());
+                    }else if(columnVectorNum == 7){
+                        CompressUpdateBit += GetUpdateBitNum_Merge(bitCountFlipData, 1, 7, 1,request->data.GetSize());
                     }else if(columnVectorNum == 8){
                         CompressUpdateBit += tempForVectorUpdateBit;
                     }
@@ -549,6 +642,14 @@ bool NVMain::IssueCommand( NVMainRequest *request )
                 else{
                     compressByte[6]++;
                     CompressUpdateBit += 64*8;
+                }
+
+                if(CompressDataSize <= 61){
+                    VectorUpdateBit += tempForVectorUpdateBit;
+                }else if(CompressDataSize <= 63){
+                    VectorUpdateBit += columnVectorNum * 64;
+                }else{
+                    VectorUpdateBit += 64*8;
                 }
             }
 
@@ -565,23 +666,19 @@ bool NVMain::IssueCommand( NVMainRequest *request )
 uint64_t NVMain::GetUpdateBitNum(uint8_t *flipcacheline, uint8_t granulatiry, uint8_t size){
 
 
-    int columnIndex = 0;
-    int update_check = 0;
-    int columnUpdateNum = 0;
     int temp_list[8] = {7,6,5,4,3,2,1,0};
-
-    int columUpdateVector[8] = {0,};
-    int columnVectorNum = 0;
     uint8_t *bitUpdateVector = new uint8_t[64/granulatiry];
     int bitVectorNum=0;
 
     uint64_t tempForUpdateBit = 0;
 
     for( uint64_t bitCountByte = 0; bitCountByte < size;){ //8개 Columns(64 Byte)
-        update_check = 0;
         for( uint64_t ByteIndex = 0; ByteIndex<8; ByteIndex++){ //1개 Column (8 Byte)
+            bitVectorNum = 0;
+            for (int8_t temp_i = 0; temp_i < 64/granulatiry; temp_i++){
+                bitUpdateVector[temp_i] = 0;
+            }
             if(flipcacheline[bitCountByte] >= 1){
-                update_check++;
                 for(int8_t BitIndex = 7; BitIndex >= 0; BitIndex--){ //1개 Column 내부 1Byte
                     int mask=0;
                     mask = 1 << temp_list[BitIndex];
@@ -591,25 +688,74 @@ uint64_t NVMain::GetUpdateBitNum(uint8_t *flipcacheline, uint8_t granulatiry, ui
                 }
             }
             bitCountByte++;
+            for( int8_t temp_i = 0; temp_i < 64/granulatiry; temp_i++){
+                if (bitUpdateVector[temp_i] == 1)
+                    bitVectorNum++;
+            }
+            tempForUpdateBit += bitVectorNum * granulatiry;
+        }
+    }
+    return tempForUpdateBit;
+}
+uint64_t NVMain::GetUpdateBitNum_Merge(uint8_t *flipcacheline, uint8_t granulatiry, uint8_t columnUpdateNum, uint8_t vector_Num, uint8_t size){
+
+
+    int temp_list[8] = {7,6,5,4,3,2,1,0};
+    uint8_t **bitUpdateVector_2 = new uint8_t*[vector_Num];
+    uint64_t *mergeVectorNum = new uint64_t[vector_Num];
+    for (int i = 0 ; i < vector_Num; i++){
+        bitUpdateVector_2[i] = new uint8_t[64/granulatiry];
+    }
+    //Vector 생성 및 초기화
+
+    uint8_t tempForBitUpdateVectorNum = 0; //Merge Vector 위치를 위한 값
+    uint64_t tempForUpdateBit = 0;  //Return 위한 값 
+
+    for(int i = 0; i < vector_Num; i++){
+        for(int j = 0; j < 64/granulatiry; j++){
+            bitUpdateVector_2[i][j] = 0;
+        }
+        mergeVectorNum[i] = 0;
+    }
+
+    for( uint64_t columnIndex = 0; columnIndex < size;){ //8개 Columns(64 Byte)
+        int update_check = 0;
+        for( uint64_t ByteIndex = 0; ByteIndex<8; ByteIndex++){ //1개 Column (8 Byte)
+            if(flipcacheline[columnIndex] >= 1){
+                update_check++;
+                for(int8_t BitIndex = 7; BitIndex >= 0; BitIndex--){ //1개 Column 내부 1Byte
+                    int mask=0;
+                    mask = 1 << temp_list[BitIndex];
+                    if(flipcacheline[columnIndex] & mask ? 1 : 0) {
+                        bitUpdateVector_2[tempForBitUpdateVectorNum][(ByteIndex*8 + temp_list[BitIndex])/granulatiry] = 1;
+                    }
+                }
+            }
+            columnIndex++;
         }
         if (update_check >= 1){
-            columnUpdateNum++;
-            columUpdateVector[(bitCountByte-1)/8] = 1;
+            tempForBitUpdateVectorNum++;
         }
-        columnIndex++;
+        if (tempForBitUpdateVectorNum >= vector_Num){
+            tempForBitUpdateVectorNum = 0;
+        }
     }
     
-
-    for( int8_t i = 0; i < 8; i++){
-        if (columUpdateVector[i] == 1)
-            columnVectorNum++;
+    for(int i = 0; i < vector_Num; i++){
+        for(int j = 0; j < 64/granulatiry; j++){
+            if (bitUpdateVector_2[i][j] == 1)
+                mergeVectorNum[i]++;
+        }
     }
-    for( int8_t i = 0; i < 64/granulatiry; i++){
-        if (bitUpdateVector[i] == 1)
-            bitVectorNum++;
+    uint64_t temp = 0;
+    for (int i = 0; i < columnUpdateNum; i++){
+        tempForUpdateBit += mergeVectorNum[temp] * granulatiry;
+        temp++;
+        if (temp >= vector_Num)
+            temp = 0;
     }
-    tempForUpdateBit = columnVectorNum * (granulatiry * bitVectorNum);
 
+    
     return tempForUpdateBit;
 }
 uint32_t NVMain::BDI(uint8_t *cacheline, uint32_t data_size)

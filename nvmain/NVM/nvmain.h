@@ -71,6 +71,7 @@ class NVMain : public NVMObject
     bool IssueAtomic( NVMainRequest *request );
     bool IsIssuable( NVMainRequest *request, FailReason *reason );
     uint64_t GetUpdateBitNum(uint8_t *flipcacheline, uint8_t granulatiry, uint8_t size);
+    uint64_t GetUpdateBitNum_Merge(uint8_t *flipcacheline, uint8_t granulatiry, uint8_t columnUpdateNum, uint8_t vector_Num, uint8_t size);
 
     bool RequestComplete( NVMainRequest *request );
 
