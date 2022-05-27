@@ -315,6 +315,11 @@ void FRFCFS::Cycle( ncycle_t steps )
     /* Issue the commands for this transaction. */
     if( nextRequest != NULL )
     {
+        //Yongho Add Start, Need to edit
+        if (nextRequest->type == WRITE && MemoryController::directWriteOn == true) {
+            nextRequest->WriteAround = true;
+        }
+        //Yongho Add End
         nextRequest->address.GetTranslatedAddress( &row, &col, &bank, &rank, NULL, &subarray );
 
         if( nextRequest->type == WRITE){

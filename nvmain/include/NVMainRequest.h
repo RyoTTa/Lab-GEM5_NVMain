@@ -141,6 +141,11 @@ class NVMainRequest
     { 
     };
 
+    //Yongho Add Start
+    bool PseudoActivate;
+    bool WriteAround;
+    //Yongho Add End
+
     NVMAddress address;            //< Address of request
     OpType type;                   //< Operation type of request (read, write, etc)
     BulkCommand bulkCmd;           //< Bulk Commands (i.e., Read+Precharge, Write+Precharge, etc)

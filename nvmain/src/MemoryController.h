@@ -103,6 +103,9 @@ class MemoryController : public NVMObject
     MemoryController( );
     ~MemoryController( );
 
+    //Yongho Add Start
+    bool directWriteOn;
+    //Yongho Add End
 
     void InitQueues( unsigned int numQueues );
     void InitBankQueues( unsigned int numQueues );
@@ -127,7 +130,7 @@ class MemoryController : public NVMObject
     unsigned int GetID( );
 
   protected:
-    bool directWrite;
+
 
     Interconnect *memory;
     Config *config;

@@ -1,5 +1,5 @@
 #!/bin/python3
-# -*- coding: utf-8 -*- 
+# -*- coding: utf-8 -*-
 import os
 import json
 import time
@@ -9,6 +9,9 @@ import datetime
 import shutil
 import re
 import subprocess
+import signal
+
+#signal.signal(signal.SIGTTOU, signal.SIG_IGN)
 
 ################### argparser #######################
 #buildfile = GEM 5의 빌드파일
@@ -90,12 +93,12 @@ if os.path.exists(OUTPUT_DIR)==False:
     os.mkdir(OUTPUT_DIR)
     os.system("chmod g+w " + OUTPUT_DIR)
 
-if '/' in str(args.optionfile) : 
+if '/' in str(args.optionfile) :
     shutil.copy2(args.optionfile, OUTPUT_DIR+"/"+str(gem5_id)+"-"+str(args.optionfile).split('/')[-1])
-else : 
+else :
     shutil.copy2(args.optionfile, OUTPUT_DIR+"/"+str(gem5_id)+"-"+str(args.optionfile))
 
-if args.addfile != None : 
+if args.addfile != None :
     print(args.addfile)
     shutil.copy2(args.addfile, OUTPUT_DIR+"/"+str(gem5_id)+"-addfile-"+str(args.addfile).split('/')[-1])
 
@@ -104,14 +107,14 @@ f.write(description)
 f.close()
 ################빌드 및 구성 파일 옵션 설정 ####################
 
-def AddOption(tag) : 
+def AddOption(tag) :
     parm=""
     options=config.options(tag)
     for option_name in options:
         option_value = config.get(tag,option_name)
-        if option_value == "" : 
+        if option_value == "" :
             parm = parm + " "+ option_name
-        else : 
+        else :
             parm = parm + " "+ option_name + "=" + option_value
     return parm
 
@@ -132,10 +135,10 @@ GEM5_CONFIG_FILE=config.get("TRACE","CONFIGFILE").split('\n')
 BENCH_BUILD_DIR=config.get("TRACE","BENCHDIR").split('\n')
 
 #######################체크포인트 설정#######################
-if checkpoint_make_check : 
+if checkpoint_make_check :
     mix_count = 1
     bench_pwd=config.options("BENCHMARK")
-    for i in range(len(bench_pwd)) : 
+    for i in range(len(bench_pwd)) :
         if ';' in bench_pwd[i] :
             if 'mix' in bench_pwd[i] :
                 bench_name = 'mix' + str(mix_count)
@@ -143,13 +146,13 @@ if checkpoint_make_check :
                 mix_count +=1
                 check_mix = True
 
-            else : 
+            else :
                 bench_name = str(bench_pwd[i]).split(';')[0]
                 bench_name=bench_name.replace("'","")
         else :
             bench_name = bench_pwd[i]
         os.mkdir(OUTPUT_DIR+"/"+bench_name.split('/')[-1])
-if checkpoint_use_check : 
+if checkpoint_use_check :
     CHECKPOINT_DIR = config.get("TRACE","CHECKPOINTDIR").split('\n')
 
 ########################## 실행 #############################
@@ -170,13 +173,13 @@ def splitBenchOption(bench_option) :
     ooption = ooption[0:-1]
 
     return oinput, ooption
-    
 
 
-def RunBench(tag) : 
+
+def RunBench(tag) :
     mix_count = 1
     bench_pwd=config.options(tag)
-    for i in range(len(bench_pwd)) : 
+    for i in range(len(bench_pwd)) :
         cmd=""
         gem5_build_option = ""
         check_mix = False
@@ -191,7 +194,7 @@ def RunBench(tag) :
                 mix_count +=1
                 check_mix = True
 
-            else : 
+            else :
                 bench_name = str(bench_pwd[i]).split(';')[0]
                 bench_name=bench_name.replace("'","")
         else :
@@ -201,14 +204,14 @@ def RunBench(tag) :
         stdout_file = gem5_id + "-" + bench_name.split('/')[-1] + ".out"
         stderr_file = gem5_id + "-" + bench_name.split('/')[-1] + ".err"
 
-        if checkpoint_make_check : 
+        if checkpoint_make_check :
             gem5_config_option_temp = gem5_config_option + ' --checkpoint-dir=' + OUTPUT_DIR + "/" + bench_name.split('/')[-1]
-        elif checkpoint_use_check : 
+        elif checkpoint_use_check :
             gem5_config_option_temp = gem5_config_option + ' --checkpoint-dir=' + CHECKPOINT_DIR[0] + bench_name.split('/')[-1]
-        else : 
+        else :
             gem5_config_option_temp = gem5_config_option
 
-        if bench_option == None : 
+        if bench_option == None :
             cmd = GEM5_BUILD_FILE[0] + " " \
             + gem5_build_option + " " \
             + GEM5_CONFIG_FILE[0] + " " \
@@ -216,7 +219,7 @@ def RunBench(tag) :
             + "--cmd='" + bench_pwd[i] + "' "\
             + " > " +OUTPUT_DIR +"/"+ stdout_file \
             + " 2> " +OUTPUT_DIR + "/" + stderr_file
-        else : 
+        else :
             cmd = GEM5_BUILD_FILE[0] + " " \
             + gem5_build_option + " " \
             + GEM5_CONFIG_FILE[0] + " " \
@@ -226,21 +229,24 @@ def RunBench(tag) :
             + "--options=" + "'" + bench_option + "'" \
             + " > " +OUTPUT_DIR +"/" + stdout_file \
             + " 2> " +OUTPUT_DIR + "/" + stderr_file
-            
+
         print(cmd)
         wd = os.getcwd()
         if check_mix == True :
             os.chdir(BENCH_BUILD_DIR[0] + bench_name.split('/')[-1][0:3])
-        else : 
+        else :
             os.chdir(BENCH_BUILD_DIR[0] + bench_name.split('/')[-1])
-        subprocess.Popen(cmd,shell=True)
+        #subprocess.Popen("srun -x compasslab4 "+ cmd,shell=True)
+        subprocess.Popen("srun -J "+ bench_name.split('/')[-1] +" " + cmd,shell=True)
+        #fd = os.open("/dev/tty", os.O_RDWR)
+        #os.tcsetpgrp(fd, os.getpgrp())
         os.chdir(wd)
-        time.sleep(0.5)
-    
+        time.sleep(1)
+
 
 
 RunBench("BENCHMARK")
-
+#time.sleep(100)
 ###############history 추가##################
 
 data= {}

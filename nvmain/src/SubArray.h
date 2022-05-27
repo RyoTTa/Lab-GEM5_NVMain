@@ -123,8 +123,10 @@ class SubArray : public NVMObject
     bool IsWriting( ) { return isWriting; }
 
   private:
-    bool directWrite;
+    //Yongho Add Start
+    bool directWriteOn;
     //bool realWriteBack;
+    //Yongho Add End
 
     Config *conf;
     ncounter_t psInterval;

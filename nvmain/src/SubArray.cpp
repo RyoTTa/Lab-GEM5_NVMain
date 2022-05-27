@@ -60,7 +60,7 @@ using namespace NVM;
 
 SubArray::SubArray( )
 {
-    directWrite = false;
+    directWriteOn = false;
     //realWriteBack = false;
 
     conf = NULL;
@@ -212,25 +212,25 @@ void SubArray::SetConfig( Config *c, bool createChildren )
     {
         if( conf->GetBool( "DirectWrite" ) == true )
         {
-            directWrite = true;
+            directWriteOn = true;
             std::cout << "NVMain Warning: Direct Write On" << std::endl;
         }
         else if( conf->GetBool( "DirectWrite" ) == false )
         {
-            directWrite = false;
+            directWriteOn = false;
             std::cout << "NVMain Warning: Direct Write Off" << std::endl;
         }
         else
         {
             std::cout << "NVMain Warning: Unknown direct write bool `"
                       << "'. Defaulting to non-direct write(false)" << std::endl;
-            directWrite = false;
+            directWriteOn = false;
         }
     }
     else{
         std::cout << "NVMain Warning: Unknown direct write bool `"
                       << "'. Defaulting to non-direct write(false)" << std::endl;
-        directWrite = false;
+        directWriteOn = false;
     }
 
     ncounter_t totalWritePulses = p->nWP00 + p->nWP01 + p->nWP10 + p->nWP11;
@@ -359,7 +359,7 @@ bool SubArray::Activate( NVMainRequest *request )
                     GetEventQueue()->GetCurrentCycle() 
                         + p->tRCD - p->tAL );
 
-    if (directWrite == true){
+    if (directWriteOn == true && request->PseudoActivate == true){
         nextWrite = MAX( nextWrite, 
                         GetEventQueue()->GetCurrentCycle() 
                          + p->tPRCD );
@@ -806,7 +806,7 @@ bool SubArray::Write( NVMainRequest *request )
 
         burstEnergy += p->Ewr;
 
-        if (directWrite == true){
+        if (directWriteOn == true){
             subArrayEnergy -= p->Erd;
             activeEnergy -= p->Erd;
         }

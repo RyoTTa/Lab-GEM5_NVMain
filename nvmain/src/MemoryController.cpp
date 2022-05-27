@@ -57,7 +57,7 @@ bool WasIssued( NVMainRequest *request ) { return (request->flags & NVMainReques
 
 MemoryController::MemoryController( )
 {
-    directWrite = false;
+    directWriteOn = false;
 
     transactionQueues = NULL;
     transactionQueueCount = 0;
@@ -347,30 +347,32 @@ void MemoryController::SetConfig( Config *conf, bool createChildren )
     params->SetParams( conf );
     SetParams( params );
 
+    //Yongho Add Start
     if( conf->KeyExists( "DirectWrite" ) )
     {
         if( conf->GetBool( "DirectWrite" ) == true )
         {
-            directWrite = true;
+            directWriteOn = true;
             std::cout << "NVMain Warning: MemoryController Direct Write On" << std::endl;
         }
         else if( conf->GetBool( "DirectWrite" ) == false )
         {
-            directWrite = false;
+            directWriteOn = false;
             std::cout << "NVMain Warning: MemoryController Direct Write Off" << std::endl;
         }
         else
         {
             std::cout << "NVMain Warning: MemoryController Unknown direct write bool `"
                       << "'. Defaulting to non-direct write(false)" << std::endl;
-            directWrite = false;
+            directWriteOn = false;
         }
     }
     else{
         std::cout << "NVMain Warning: MemoryController Unknown direct write bool `"
                       << "'. Defaulting to non-direct write(false)" << std::endl;
-        directWrite = false;
+        directWriteOn = false;
     }
+    //Yongho Add End
 
     if( createChildren )
     {
@@ -1512,6 +1514,9 @@ bool MemoryController::IssueMemoryCommands( NVMainRequest *req )
     ncounter_t rank, bank, row, subarray, col;
 
     req->address.GetTranslatedAddress( &row, &col, &bank, &rank, NULL, &subarray );
+    //Yongho Add Start
+    req->PseudoActivate = false;
+    //Yongho Add End
 
     SubArray *writingArray = FindChild( req, SubArray );
 
@@ -1552,7 +1557,7 @@ bool MemoryController::IssueMemoryCommands( NVMainRequest *req )
     {
         delete cachedRequest;
     }
-
+    //Yongho Comments, de-Activated Bank State, bankqueue(commandQueue) empty
     if( !activateQueued[rank][bank] && commandQueues[queueId].empty() )
     {
         /* Any activate will request the starvation counter */
@@ -1565,6 +1570,11 @@ bool MemoryController::IssueMemoryCommands( NVMainRequest *req )
         req->issueCycle = GetEventQueue()->GetCurrentCycle();
 
         NVMainRequest *actRequest = MakeActivateRequest( req );
+        //Yongho Add Start
+        if(directWriteOn == true && req->type == WRITE){
+            actRequest->PseudoActivate = true;
+        }
+        //Yongho Add End
         actRequest->flags |= (writingArray != NULL && writingArray->IsWriting( )) ? NVMainRequest::FLAG_PRIORITY : 0;
         commandQueues[queueId].push_back( actRequest );
 
@@ -1575,9 +1585,14 @@ bool MemoryController::IssueMemoryCommands( NVMainRequest *req )
          * buffer hit
          * or 2) ClosePage == 2, the request is always the last request
          */
-        if (directWrite == true && req->type == WRITE){
+
+        //Yongho Add Start
+        //All WriteRequest convert to ImplicitPrechargeWriteRequest in DirectWriteOn
+        if (directWriteOn == true && req->type == WRITE){
             req->flags |= NVMainRequest::FLAG_LAST_REQUEST;
+            req->PseudoActivate = true;
         }
+        //Yongho Add End
 
         if( req->flags & NVMainRequest::FLAG_LAST_REQUEST && p->UsePrecharge )
         {
@@ -1595,6 +1610,7 @@ bool MemoryController::IssueMemoryCommands( NVMainRequest *req )
 
         rv = true;
     }
+    //Yongho Comments, Activated Bank State, But-BankConflict-RowbufferMiss(Row, Subarray, MuxedRow), bankqueue(commandQueue) empty
     else if( activateQueued[rank][bank] 
             && ( !activeSubArray[rank][bank][subarray] 
                 || effectiveRow[rank][bank][subarray] != row 
@@ -1614,12 +1630,21 @@ bool MemoryController::IssueMemoryCommands( NVMainRequest *req )
         }
 
         NVMainRequest *actRequest = MakeActivateRequest( req );
+        //Yongho Add Start
+        if(directWriteOn == true && req->type == WRITE){
+            actRequest->PseudoActivate = true;
+        }
+        //Yongho Add End
         actRequest->flags |= (writingArray != NULL && writingArray->IsWriting( )) ? NVMainRequest::FLAG_PRIORITY : 0;
         commandQueues[queueId].push_back( actRequest );
 
-        if (directWrite == true && req->type == WRITE){
+        //Yongho Add Start
+        //All WriteRequest convert to ImplicitPrechargeWriteRequest in DirectWriteOn
+        if (directWriteOn == true && req->type == WRITE){
             req->flags |= NVMainRequest::FLAG_LAST_REQUEST;
+            req->PseudoActivate = true;
         }
+        //Yongho Add End
         if( req->flags & NVMainRequest::FLAG_LAST_REQUEST && p->UsePrecharge )
         {
             commandQueues[queueId].push_back( MakeImplicitPrechargeRequest( req ) );
@@ -1639,6 +1664,7 @@ bool MemoryController::IssueMemoryCommands( NVMainRequest *req )
 
         rv = true;
     }
+    //Yongho Comments, Activated Bank State, Row buffer Hit
     else if( activateQueued[rank][bank] 
             && activeSubArray[rank][bank][subarray]
             && effectiveRow[rank][bank][subarray] == row 
@@ -1655,10 +1681,13 @@ bool MemoryController::IssueMemoryCommands( NVMainRequest *req )
          * buffer hit
          * or 2) ClosePage == 2, the request is always the last request
          */
-        if (directWrite == true && req->type == WRITE){
+        //Yongho Add Start
+        //All WriteRequest convert to ImplicitPrechargeWriteRequest in DirectWriteOn
+        if (directWriteOn == true && req->type == WRITE){
             req->flags |= NVMainRequest::FLAG_LAST_REQUEST;
+            req->PseudoActivate = true;
         }
-
+        //Yongho Add End
         if( req->flags & NVMainRequest::FLAG_LAST_REQUEST && p->UsePrecharge )
         {
             /* if Restricted Close-Page is applied, we should never be here */
@@ -1689,12 +1718,14 @@ bool MemoryController::IssueMemoryCommands( NVMainRequest *req )
 
         rv = true;
     }
+    //Yongho Comments, input bankqueue(CommandQueue) Fails
     else
     {
         rv = false;
     }
 
     /* Schedule wake event for memory commands if not scheduled. */
+    //If input bankqueue(CommandQueue) Success then ScheduleCommandWake()
     if( rv == true )
     {
         ScheduleCommandWake( );

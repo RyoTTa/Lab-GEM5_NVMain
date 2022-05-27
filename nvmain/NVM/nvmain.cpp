@@ -551,8 +551,8 @@ bool NVMain::IssueCommand( NVMainRequest *request )
                 else{
                     compressByte[6]++;
                     CompressUpdateBit += 64*8;
-                }
-            */
+                 }*/
+            
             if(columnVectorNum != 0){
                 if (CompressDataSize <=64){
                     compressByte[0]++;
@@ -652,6 +652,7 @@ bool NVMain::IssueCommand( NVMainRequest *request )
                     VectorUpdateBit += 64*8;
                 }
             }
+           
 
 
         }
