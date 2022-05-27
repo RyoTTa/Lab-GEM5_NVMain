@@ -104,6 +104,55 @@
 			"time": "15:29",
 			"foldername": "WriteBack_1B",
 			"description": ""
+		},
+		{
+			"id": "1653638737676",
+			"date": "05-27-22",
+			"time": "17:05",
+			"foldername": "E_WriteBack_1B",
+			"description": ""
+		},
+		{
+			"id": "1653638774279",
+			"date": "05-27-22",
+			"time": "17:06",
+			"foldername": "E_WriteThrough_1B",
+			"description": ""
+		},
+		{
+			"id": "1653638811797",
+			"date": "05-27-22",
+			"time": "17:06",
+			"foldername": "E_WriteAround_1B",
+			"description": ""
+		},
+		{
+			"id": "1653642434087",
+			"date": "05-27-22",
+			"time": "18:07",
+			"foldername": "Simple_Emergency_WriteAround_1B",
+			"description": ""
+		},
+		{
+			"id": "1653642888857",
+			"date": "05-27-22",
+			"time": "18:14",
+			"foldername": "Simple3_Emergency_WriteAround_1B",
+			"description": "if readReqNumber > queueSize/3"
+		},
+		{
+			"id": "1653643087372",
+			"date": "05-27-22",
+			"time": "18:18",
+			"foldername": "Simple4_Emergency_WriteAround_1B",
+			"description": ""
+		},
+		{
+			"id": "1653645391009",
+			"date": "05-27-22",
+			"time": "18:56",
+			"foldername": "EDIT_Simple4_Emergency_WriteAround_1B",
+			"description": ""
 		}
 	]
 }

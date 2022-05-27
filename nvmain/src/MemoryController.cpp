@@ -57,8 +57,9 @@ bool WasIssued( NVMainRequest *request ) { return (request->flags & NVMainReques
 
 MemoryController::MemoryController( )
 {
+    //Yongho Add Start
     directWriteOn = false;
-
+    //Yongho Add End
     transactionQueues = NULL;
     transactionQueueCount = 0;
     commandQueues = NULL;
@@ -76,8 +77,9 @@ MemoryController::MemoryController( )
     effectiveMuxedRow = NULL;
     activeSubArray = NULL;
 
+    //Yongho Add Start
     lastCommandType = NULL;
-
+    //Yongho Add End
     delayedRefreshCounter = NULL;
     
     curQueue = 0;
@@ -480,7 +482,9 @@ void MemoryController::SetConfig( Config *conf, bool createChildren )
     refreshQueued = new bool * [p->RANKS];
     starvationCounter = new ncounter_t ** [p->RANKS];
     effectiveRow = new ncounter_t ** [p->RANKS];
+    //Yongho Add Start
     lastCommandType = new OpType ** [p->RANKS];
+    //Yongho Add End
     effectiveMuxedRow = new ncounter_t ** [p->RANKS];
     activeSubArray = new ncounter_t ** [p->RANKS];
     rankPowerDown = new bool [p->RANKS];
@@ -491,7 +495,9 @@ void MemoryController::SetConfig( Config *conf, bool createChildren )
         refreshQueued[i] = new bool[p->BANKS];
         activeSubArray[i] = new ncounter_t * [p->BANKS];
         effectiveRow[i] = new ncounter_t * [p->BANKS];
+        //Yongho Add Start
         lastCommandType[i] = new OpType * [p->BANKS];
+        //Yongho Add ENd
         effectiveMuxedRow[i] = new ncounter_t * [p->BANKS];
         starvationCounter[i] = new ncounter_t * [p->BANKS];
 
@@ -507,7 +513,9 @@ void MemoryController::SetConfig( Config *conf, bool createChildren )
 
             starvationCounter[i][j] = new ncounter_t [subArrayNum];
             effectiveRow[i][j] = new ncounter_t [subArrayNum];
+            //Yongho Add Start
             lastCommandType[i][j] = new OpType [subArrayNum];
+            //Yongho Add End
             effectiveMuxedRow[i][j] = new ncounter_t [subArrayNum];
             activeSubArray[i][j] = new ncounter_t [subArrayNum];
 
@@ -517,7 +525,9 @@ void MemoryController::SetConfig( Config *conf, bool createChildren )
                 activeSubArray[i][j][m] = false;
                 /* set the initial effective row as invalid */
                 effectiveRow[i][j][m] = p->ROWS;
+                //Yongho Add Start
                 lastCommandType[i][j][m] = NOP;
+                //Yongho Add End
                 effectiveMuxedRow[i][j][m] = p->ROWS;
             }
         }
@@ -1497,6 +1507,40 @@ bool MemoryController::FindClosedBankRequest( std::list<NVMainRequest *>& transa
 
     return rv;
 }
+
+//Yongho Add Start
+unsigned int MemoryController::FindReadRequestInQueueNumber( std::list<NVMainRequest *>& transactionQueue)
+{
+    std::list<NVMainRequest *>::iterator it;
+
+    unsigned int read_request_number = 0;
+
+    for( it = transactionQueue.begin(); it != transactionQueue.end(); it++ )
+    {
+        if ((*it)->type == READ) {
+            read_request_number++;
+        }
+    }
+
+    return read_request_number++;
+}
+
+unsigned int MemoryController::FindWriteRequestInQueueNumber( std::list<NVMainRequest *>& transactionQueue)
+{
+    std::list<NVMainRequest *>::iterator it;
+
+    unsigned int write_request_number = 0;
+
+    for( it = transactionQueue.begin(); it != transactionQueue.end(); it++ )
+    {
+        if ((*it)->type == WRITE) {
+            write_request_number++;
+        }
+    }
+
+    return write_request_number++;
+}
+//Yongho Add End
 
 bool MemoryController::DummyPredicate::operator() ( NVMainRequest* /*request*/ )
 {

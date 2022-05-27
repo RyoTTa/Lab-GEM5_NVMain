@@ -135,6 +135,10 @@ class NVMainRequest
         writeProgress = 0;
         cancellations = 0;
         owner = NULL;
+        //Yongho Add Start
+        PseudoActivate = false;
+        WriteAround = false;
+        //Yongho Add End
     };
 
     ~NVMainRequest( )

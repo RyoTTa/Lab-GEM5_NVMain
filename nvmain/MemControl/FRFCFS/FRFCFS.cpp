@@ -263,17 +263,21 @@ void FRFCFS::Cycle( ncycle_t steps )
 
         if( nextRequest->type == WRITE){
             wr_rb_hits++;
+            //Yongho Add Start
             if (lastCommandType[rank][bank][subarray] == WRITE)
                 wr_wr_rb_hits++;
             else
                 rd_wr_rb_hits++;
+            //Yongho Add End
         }   
         else{
             rd_rb_hits++;
+            //Yongho Add Start
             if (lastCommandType[rank][bank][subarray] == READ)
                 rd_rd_rb_hits++;
             else
                 wr_rd_rb_hits++;
+            //Yongho Add End
         }
     }
     /* Check if the address is accessible through any other means. */
@@ -316,18 +320,27 @@ void FRFCFS::Cycle( ncycle_t steps )
     if( nextRequest != NULL )
     {
         //Yongho Add Start, Need to edit
+//        if (nextRequest->type == WRITE && MemoryController::directWriteOn == true) {
+//            nextRequest->WriteAround = true;
+//        }
+        nextRequest->WriteAround = false;
         if (nextRequest->type == WRITE && MemoryController::directWriteOn == true) {
-            nextRequest->WriteAround = true;
+            if ( FindReadRequestInQueueNumber( *memQueue ) > queueSize/4 ) {
+                nextRequest->WriteAround = true;
+            }
         }
         //Yongho Add End
+
         nextRequest->address.GetTranslatedAddress( &row, &col, &bank, &rank, NULL, &subarray );
 
+        //Yongho Add Start
         if( nextRequest->type == WRITE){
             lastCommandType[rank][bank][subarray] = WRITE;
         }   
         else if(nextRequest->type == READ){
             lastCommandType[rank][bank][subarray] = READ;
-        } 
+        }
+        //Yongho Add End
         IssueMemoryCommands( nextRequest );
     }
 
