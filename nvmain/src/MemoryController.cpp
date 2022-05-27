@@ -1571,7 +1571,7 @@ bool MemoryController::IssueMemoryCommands( NVMainRequest *req )
 
         NVMainRequest *actRequest = MakeActivateRequest( req );
         //Yongho Add Start
-        if(directWriteOn == true && req->type == WRITE){
+        if(directWriteOn == true && req->type == WRITE && req->WriteAround == true){
             actRequest->PseudoActivate = true;
         }
         //Yongho Add End
@@ -1588,9 +1588,8 @@ bool MemoryController::IssueMemoryCommands( NVMainRequest *req )
 
         //Yongho Add Start
         //All WriteRequest convert to ImplicitPrechargeWriteRequest in DirectWriteOn
-        if (directWriteOn == true && req->type == WRITE){
+        if (directWriteOn == true && req->type == WRITE && req->WriteAround == true){
             req->flags |= NVMainRequest::FLAG_LAST_REQUEST;
-            req->PseudoActivate = true;
         }
         //Yongho Add End
 
@@ -1631,7 +1630,7 @@ bool MemoryController::IssueMemoryCommands( NVMainRequest *req )
 
         NVMainRequest *actRequest = MakeActivateRequest( req );
         //Yongho Add Start
-        if(directWriteOn == true && req->type == WRITE){
+        if(directWriteOn == true && req->type == WRITE && req->WriteAround == true){
             actRequest->PseudoActivate = true;
         }
         //Yongho Add End
@@ -1640,9 +1639,8 @@ bool MemoryController::IssueMemoryCommands( NVMainRequest *req )
 
         //Yongho Add Start
         //All WriteRequest convert to ImplicitPrechargeWriteRequest in DirectWriteOn
-        if (directWriteOn == true && req->type == WRITE){
+        if (directWriteOn == true && req->type == WRITE && req->WriteAround == true){
             req->flags |= NVMainRequest::FLAG_LAST_REQUEST;
-            req->PseudoActivate = true;
         }
         //Yongho Add End
         if( req->flags & NVMainRequest::FLAG_LAST_REQUEST && p->UsePrecharge )
@@ -1683,9 +1681,8 @@ bool MemoryController::IssueMemoryCommands( NVMainRequest *req )
          */
         //Yongho Add Start
         //All WriteRequest convert to ImplicitPrechargeWriteRequest in DirectWriteOn
-        if (directWriteOn == true && req->type == WRITE){
+        if (directWriteOn == true && req->type == WRITE && req->WriteAround == true){
             req->flags |= NVMainRequest::FLAG_LAST_REQUEST;
-            req->PseudoActivate = true;
         }
         //Yongho Add End
         if( req->flags & NVMainRequest::FLAG_LAST_REQUEST && p->UsePrecharge )

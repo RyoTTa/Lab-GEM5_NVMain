@@ -806,7 +806,7 @@ bool SubArray::Write( NVMainRequest *request )
 
         burstEnergy += p->Ewr;
 
-        if (directWriteOn == true){
+        if (request->WriteAround == true){
             subArrayEnergy -= p->Erd;
             activeEnergy -= p->Erd;
         }
