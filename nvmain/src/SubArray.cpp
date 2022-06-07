@@ -409,6 +409,15 @@ bool SubArray::Activate( NVMainRequest *request )
         /* Flat energy model. */
         subArrayEnergy += p->Erd;
         activeEnergy += p->Erd;
+
+
+        //Yongho Adding Start
+        //Yongho Comments, If request is PseudoActivate, then Non-Energy Consumption in P-ACT
+        if (request->PseudoActivate == true){
+            subArrayEnergy -= p->Erd;
+            activeEnergy -= p->Erd;
+        }
+        //Yongho Adding End
     }
 
     activates++;
@@ -806,10 +815,7 @@ bool SubArray::Write( NVMainRequest *request )
 
         burstEnergy += p->Ewr;
 
-        if (request->WriteAround == true){
-            subArrayEnergy -= p->Erd;
-            activeEnergy -= p->Erd;
-        }
+
     }
 
     writeCycle = true;
