@@ -360,11 +360,13 @@ bool SubArray::Activate( NVMainRequest *request )
                         + p->tRCD - p->tAL );
 
     if (directWriteOn == true && request->PseudoActivate == true){
+        //std::cout << "DirectWrite On in SubArray" << std::endl;
         nextWrite = MAX( nextWrite, 
                         GetEventQueue()->GetCurrentCycle() 
                          + p->tPRCD );
     }
     else{
+        //std::cout << "DirectWrite Off in SubArray" << std::endl;
         nextWrite = MAX( nextWrite, 
                      GetEventQueue()->GetCurrentCycle() 
                          + p->tRCD - p->tAL );
@@ -411,13 +413,13 @@ bool SubArray::Activate( NVMainRequest *request )
         activeEnergy += p->Erd;
 
 
-        //Yongho Adding Start
+        //Yongho Add Start
         //Yongho Comments, If request is PseudoActivate, then Non-Energy Consumption in P-ACT
         if (request->PseudoActivate == true){
             subArrayEnergy -= p->Erd;
             activeEnergy -= p->Erd;
         }
-        //Yongho Adding End
+        //Yongho Add End
     }
 
     activates++;
@@ -635,6 +637,25 @@ bool SubArray::Write( NVMainRequest *request )
         }
     }
     /*
+    //Yongho Add Start
+    uint8_t *bitCountData_yh = new uint8_t[request->data.GetSize()];
+
+    for( uint64_t bitCountByte_yh = 0; bitCountByte_yh < request->data.GetSize(); bitCountByte_yh++ )
+    {
+        bitCountData[bitCountByte_yh] = request->data.GetByte( bitCountByte_yh )
+                                     ^ request->oldData.GetByte( bitCountByte_yh );
+    }
+
+    ncounter_t bitCountWords_yh = request->data.GetSize()/4;
+
+    ncounter_t numChangedBits_yh = CountBitsMLC1( 1, (uint32_t*)bitCountData, bitCountWords_yh );
+
+    ncounter_t numUnchangedBits_yh = request->data.GetSize()*8 - numChangedBits_yh;
+
+    //Yongho Add End
+
+
+
     //Adding Part Start
     uint8_t *bitCountNewData = new uint8_t[request->data.GetSize()];
     uint8_t *bitCountOldData = new uint8_t[request->oldData.GetSize()];

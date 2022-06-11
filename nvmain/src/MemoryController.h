@@ -280,6 +280,11 @@ class MemoryController : public NVMObject
 
     /* Stats */
     ncounter_t simulation_cycles;
+
+    //Yongho Add Start
+    ncounter_t CountBitsMLC1( uint8_t value, uint32_t *data, ncounter_t words );
+    ncounter_t Count32MLC1( uint32_t data );
+    //Yongho Add End
 };
 
 };

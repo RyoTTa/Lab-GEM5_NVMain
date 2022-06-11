@@ -325,7 +325,11 @@ void FRFCFS::Cycle( ncycle_t steps )
 //        }
         nextRequest->WriteAround = false;
         if (nextRequest->type == WRITE && MemoryController::directWriteOn == true) {
-            if ( FindReadRequestInQueueNumber( *memQueue ) > queueSize/4 ) {
+            //std::cout << "Read Req in Transaction Queue" <<FindReadRequestInQueueNumber( *memQueue ) << std::endl;
+            //std::cout << "Write Req in Transaction Queue" <<FindWriteRequestInQueueNumber( *memQueue ) << std::endl;
+            //if ( FindReadRequestInQueueNumber( *memQueue ) > queueSize/2 ) {
+            if(true) {
+               // std::cout << "Here is Continue!!" << std::endl;
                 nextRequest->WriteAround = true;
             }
         }
@@ -336,7 +340,7 @@ void FRFCFS::Cycle( ncycle_t steps )
         //Yongho Add Start
         if( nextRequest->type == WRITE){
             lastCommandType[rank][bank][subarray] = WRITE;
-        }   
+        }
         else if(nextRequest->type == READ){
             lastCommandType[rank][bank][subarray] = READ;
         }

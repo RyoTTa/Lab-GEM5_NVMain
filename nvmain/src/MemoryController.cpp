@@ -1517,12 +1517,12 @@ unsigned int MemoryController::FindReadRequestInQueueNumber( std::list<NVMainReq
 
     for( it = transactionQueue.begin(); it != transactionQueue.end(); it++ )
     {
-        if ((*it)->type == READ) {
+        if ((*it)->type == READ || (*it)->type == READ_PRECHARGE) {
             read_request_number++;
         }
     }
 
-    return read_request_number++;
+    return read_request_number;
 }
 
 unsigned int MemoryController::FindWriteRequestInQueueNumber( std::list<NVMainRequest *>& transactionQueue)
@@ -1533,12 +1533,12 @@ unsigned int MemoryController::FindWriteRequestInQueueNumber( std::list<NVMainRe
 
     for( it = transactionQueue.begin(); it != transactionQueue.end(); it++ )
     {
-        if ((*it)->type == WRITE) {
+        if ((*it)->type == WRITE || (*it)->type == WRITE_PRECHARGE) {
             write_request_number++;
         }
     }
 
-    return write_request_number++;
+    return write_request_number;
 }
 //Yongho Add End
 
@@ -1616,6 +1616,7 @@ bool MemoryController::IssueMemoryCommands( NVMainRequest *req )
         NVMainRequest *actRequest = MakeActivateRequest( req );
         //Yongho Add Start
         if(directWriteOn == true && req->type == WRITE && req->WriteAround == true){
+            //std::cout << "DirectWrite On in Memcon" << std::endl;
             actRequest->PseudoActivate = true;
         }
         //Yongho Add End
@@ -1675,6 +1676,7 @@ bool MemoryController::IssueMemoryCommands( NVMainRequest *req )
         NVMainRequest *actRequest = MakeActivateRequest( req );
         //Yongho Add Start
         if(directWriteOn == true && req->type == WRITE && req->WriteAround == true){
+            //std::cout << "DirectWrite On in Memcon" << std::endl;
             actRequest->PseudoActivate = true;
         }
         //Yongho Add End
@@ -1769,7 +1771,36 @@ bool MemoryController::IssueMemoryCommands( NVMainRequest *req )
     //If input bankqueue(CommandQueue) Success then ScheduleCommandWake()
     if( rv == true )
     {
+
+        //Yongho Add Start
+        if( req->oldData.IsValid( ) && directWriteOn == true && req->WriteAround == true )
+        {
+            uint8_t *bitCountData_yh = new uint8_t[req->data.GetSize()];
+
+            for( uint64_t bitCountByte_yh = 0; bitCountByte_yh < req->data.GetSize(); bitCountByte_yh++ )
+            {
+                bitCountData_yh[bitCountByte_yh] = req->data.GetByte( bitCountByte_yh )
+                                                ^ req->oldData.GetByte( bitCountByte_yh );
+            }
+
+            //ncounter_t bitCountWords_yh = req->data.GetSize()/4;
+            //ncounter_t numChangedBits_yh = CountBitsMLC1( 1, (uint32_t*)bitCountData_yh, bitCountWords_yh );
+            //ncounter_t numUnchangedBits_yh = req->data.GetSize()*8 - numChangedBits_yh;
+
+            //Testing
+            //std::cout << "numChangeBit : " << numChangedBits_yh << std::endl;
+            //std::cout << "numUnchangeBit : " << numUnchangedBits_yh << std::endl;
+            //
+        }else{
+            if(directWriteOn == true && req->WriteAround == true){
+                std::cout << "Old-Data is Not-Valid" << std::endl;
+            }
+            //OldData is Not-Valid?
+        }
+        //Yongho Add End
         ScheduleCommandWake( );
+
+
     }
 
     return rv;
@@ -2013,3 +2044,33 @@ void MemoryController::CalculateStats( )
     GetChild( )->CalculateStats( );
     GetDecoder( )->CalculateStats( );
 }
+
+//Yongho Add Start
+//For Write Endurance Problem in Emergency Write-Around
+ncounter_t MemoryController::CountBitsMLC1( uint8_t value, uint32_t *data, ncounter_t words )
+{
+    ncounter_t count = 0;
+
+    for( ncounter_t i = 0; i < words; i++ )
+    {
+    count += Count32MLC1( data[i] );
+    }
+
+    count = (value == 1) ? count : (words*32 - count);
+
+    return count;
+}
+
+ncounter_t MemoryController::Count32MLC1( uint32_t data )
+{
+    /*
+     *  bit-manipulation magic.
+     */
+    uint32_t count = data;
+    count = count - ((count >> 1) & 0x55555555);
+    count = (count & 0x33333333) + ((count >> 2) & 0x33333333);
+    count = (((count + (count >> 4)) & 0x0f0f0f0f) * 0x01010101) >> 24;
+
+    return static_cast<ncounter_t>(count);
+}
+//Yongho Add End
