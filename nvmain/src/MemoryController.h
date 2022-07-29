@@ -216,6 +216,7 @@ class MemoryController : public NVMObject
     //Yongho Add Start
     unsigned int FindReadRequestInQueueNumber( std::list<NVMainRequest *>& transactionQueue);
     unsigned int FindWriteRequestInQueueNumber( std::list<NVMainRequest *>& transactionQueue);
+    unsigned int FindBankConflictRequestInQueueNumber( std::list<NVMainRequest *>& transactionQueue, NVMainRequest *nextRequest);
     //Yongho Add End
 
     /* IsLastRequest() tells whether no other request has the row buffer hit in the transaction queue */

@@ -359,8 +359,9 @@ bool SubArray::Activate( NVMainRequest *request )
                     GetEventQueue()->GetCurrentCycle() 
                         + p->tRCD - p->tAL );
 
+    //Yongho Add Start
     if (directWriteOn == true && request->PseudoActivate == true){
-        //std::cout << "DirectWrite On in SubArray" << std::endl;
+        //std::cout << "IN SUBARRAY, input WriteAround in WRITE REQ" << std::endl;
         nextWrite = MAX( nextWrite, 
                         GetEventQueue()->GetCurrentCycle() 
                          + p->tPRCD );
@@ -371,6 +372,7 @@ bool SubArray::Activate( NVMainRequest *request )
                      GetEventQueue()->GetCurrentCycle() 
                          + p->tRCD - p->tAL );
     }
+    //Yongho Add End
 
     nextPowerDown = MAX( nextPowerDown, 
                          GetEventQueue()->GetCurrentCycle() 

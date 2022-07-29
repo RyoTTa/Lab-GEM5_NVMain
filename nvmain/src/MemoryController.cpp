@@ -1540,6 +1540,46 @@ unsigned int MemoryController::FindWriteRequestInQueueNumber( std::list<NVMainRe
 
     return write_request_number;
 }
+
+unsigned int MemoryController::FindBankConflictRequestInQueueNumber( std::list<NVMainRequest *>& transactionQueue
+                                                                     , NVMainRequest *nextRequest)
+{
+    std::list<NVMainRequest *>::iterator it;
+
+    unsigned int conflict_request_number = 0;
+
+    ncounter_t rank, bank, row, subarray, col;
+    //ncounter_t queueId = GetCommandQueueId( (*it)->address );
+    ncounter_t nextReq_rank, nextReq_bank, nextReq_row, nextReq_subarray, nextReq_col;
+    //ncounter_t nextReq_queueId = GetCommandQueueId( nextRequest->address );
+    nextRequest->address.GetTranslatedAddress( &nextReq_row, &nextReq_col, &nextReq_bank, &nextReq_rank, NULL, &nextReq_subarray );
+
+    for( it = transactionQueue.begin(); it != transactionQueue.end(); it++ )
+    {
+        (*it)->address.GetTranslatedAddress( &row, &col, &bank, &rank, NULL, &subarray );
+        if(bank == nextReq_bank){
+            conflict_request_number++;
+        }
+    }
+
+    /*
+    if( config->GetString( "QueueModel" ) == "PerRank" )
+    {
+
+    }
+    else if( config->GetString( "QueueModel" ) == "PerBank" )
+    {
+
+    }
+    else if( config->GetString( "QueueModel" ) == "PerSubArray" )
+    {
+
+    }
+    */
+
+    return conflict_request_number;
+}
+
 //Yongho Add End
 
 bool MemoryController::DummyPredicate::operator() ( NVMainRequest* /*request*/ )
@@ -1727,9 +1767,11 @@ bool MemoryController::IssueMemoryCommands( NVMainRequest *req )
          */
         //Yongho Add Start
         //All WriteRequest convert to ImplicitPrechargeWriteRequest in DirectWriteOn
+        /*
         if (directWriteOn == true && req->type == WRITE && req->WriteAround == true){
             req->flags |= NVMainRequest::FLAG_LAST_REQUEST;
         }
+        */
         //Yongho Add End
         if( req->flags & NVMainRequest::FLAG_LAST_REQUEST && p->UsePrecharge )
         {
@@ -1793,7 +1835,7 @@ bool MemoryController::IssueMemoryCommands( NVMainRequest *req )
             //
         }else{
             if(directWriteOn == true && req->WriteAround == true){
-                std::cout << "Old-Data is Not-Valid" << std::endl;
+                //std::cout << "Old-Data is Not-Valid" << std::endl;
             }
             //OldData is Not-Valid?
         }
