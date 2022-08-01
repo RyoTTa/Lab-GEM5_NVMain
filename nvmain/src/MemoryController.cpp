@@ -1765,6 +1765,7 @@ bool MemoryController::IssueMemoryCommands( NVMainRequest *req )
          * buffer hit
          * or 2) ClosePage == 2, the request is always the last request
          */
+
         //Yongho Add Start
         //All WriteRequest convert to ImplicitPrechargeWriteRequest in DirectWriteOn
         /*
@@ -1772,6 +1773,7 @@ bool MemoryController::IssueMemoryCommands( NVMainRequest *req )
             req->flags |= NVMainRequest::FLAG_LAST_REQUEST;
         }
         */
+        req->WriteAround == false;
         //Yongho Add End
         if( req->flags & NVMainRequest::FLAG_LAST_REQUEST && p->UsePrecharge )
         {
@@ -1808,6 +1810,21 @@ bool MemoryController::IssueMemoryCommands( NVMainRequest *req )
     {
         rv = false;
     }
+    //Yongho Add Start
+
+    if ((rv == true) && (req->type == WRITE)){
+        if ( req->WriteAround == true ){
+            
+        }
+        else if( req->WriteAround == false ) {
+
+        }else{
+            //..
+        }
+    }
+
+
+    //Yongho Add End
 
     /* Schedule wake event for memory commands if not scheduled. */
     //If input bankqueue(CommandQueue) Success then ScheduleCommandWake()

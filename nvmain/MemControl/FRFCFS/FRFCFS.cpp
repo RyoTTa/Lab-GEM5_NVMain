@@ -331,7 +331,7 @@ void FRFCFS::Cycle( ncycle_t steps )
             //if ( FindReadRequestInQueueNumber( *memQueue ) > 2 ) {
                 //std::cout << "Read Req in Transaction Queue" <<FindReadRequestInQueueNumber( *memQueue ) << std::endl;
                 //std::cout << "Write Req in Transaction Queue" <<FindWriteRequestInQueueNumber( *memQueue ) << std::endl << std::endl;
-            if(FindBankConflictRequestInQueueNumber( *memQueue, nextRequest) >= 1){
+            if(FindBankConflictRequestInQueueNumber( *memQueue, nextRequest) >= 2){
             //if(true) {
             //if(false){
                 nextRequest->WriteAround = true;

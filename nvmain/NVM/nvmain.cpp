@@ -420,7 +420,7 @@ bool NVMain::IssueCommand( NVMainRequest *request )
             totalWriteRequests++;
             
             //Adding Part Start
-            
+            /*
             uint8_t *bitCountFlipData = new uint8_t[request->data.GetSize()];
             uint8_t *NewData = new uint8_t[request->data.GetSize()];
 
@@ -551,7 +551,7 @@ bool NVMain::IssueCommand( NVMainRequest *request )
                 else{
                     compressByte[6]++;
                     CompressUpdateBit += 64*8;
-                 }*/
+                 }
             
             if(columnVectorNum != 0){
                 if (CompressDataSize <=64){
@@ -651,6 +651,7 @@ bool NVMain::IssueCommand( NVMainRequest *request )
                 }else{
                     VectorUpdateBit += 64*8;
                 }
+                */
             }
            
 
