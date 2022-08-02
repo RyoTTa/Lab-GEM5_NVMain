@@ -314,6 +314,69 @@
 			"time": "16:26",
 			"foldername": "O3_200M_WriteAround_BankConflict_BiggerThan2",
 			"description": ""
+		},
+		{
+			"id": "1659345025949",
+			"date": "08-01-22",
+			"time": "18:10",
+			"foldername": "O3_200M_BitFlipCount_WriteBack",
+			"description": ""
+		},
+		{
+			"id": "1659345140400",
+			"date": "08-01-22",
+			"time": "18:12",
+			"foldername": "O3_200M_BitFlipCount_WriteThrough",
+			"description": ""
+		},
+		{
+			"id": "1659345372294",
+			"date": "08-01-22",
+			"time": "18:16",
+			"foldername": "O3_200M_BitFlipCount_WriteAround_All",
+			"description": ""
+		},
+		{
+			"id": "1659345597149",
+			"date": "08-01-22",
+			"time": "18:19",
+			"foldername": "O3_200M_BitFlipCount_WriteAround_BiggerThan1_BankConflictReq",
+			"description": ""
+		},
+		{
+			"id": "1659345788436",
+			"date": "08-01-22",
+			"time": "18:23",
+			"foldername": "O3_200M_BitFlipCount_WriteAround_BiggerThan2_BankConfictReq",
+			"description": ""
+		},
+		{
+			"id": "1659346066600",
+			"date": "08-01-22",
+			"time": "18:27",
+			"foldername": "O3_200M_BitFlipCount_WriteAround_BiggerThan1_ReadReq",
+			"description": ""
+		},
+		{
+			"id": "1659346236404",
+			"date": "08-01-22",
+			"time": "18:30",
+			"foldername": "O3_200M_BitFlipCount_WriteAround_BiggerThan2_ReadReq",
+			"description": ""
+		},
+		{
+			"id": "1659346471715",
+			"date": "08-01-22",
+			"time": "18:34",
+			"foldername": "O3_200M_BitFlipCount_WriteAround_BiggerThan3_ReadReq",
+			"description": ""
+		},
+		{
+			"id": "1659346650499",
+			"date": "08-01-22",
+			"time": "18:37",
+			"foldername": "O3_200M_BitFlipCount_WriteAround_BiggerThan3_BankConflictReq",
+			"description": ""
 		}
 	]
 }

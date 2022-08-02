@@ -87,6 +87,11 @@ MemoryController::MemoryController( )
     nextRefreshBank = 0;
 
     handledRefresh = std::numeric_limits<ncycle_t>::max( );
+
+    WriteAroundCount = 0;
+    WriteOtherCount = 0;
+    FlipBitCount = 0;
+    UnflipBitCount = 0;
 }
 
 MemoryController::~MemoryController( )
@@ -605,6 +610,10 @@ void MemoryController::RegisterStats( )
 {
     AddStat(simulation_cycles);
     AddStat(wakeupCount);
+    AddStat(WriteAroundCount);
+    AddStat(WriteOtherCount);
+    AddStat(FlipBitCount);
+    AddStat(UnflipBitCount);
 }
 
 /* 
@@ -1562,20 +1571,29 @@ unsigned int MemoryController::FindBankConflictRequestInQueueNumber( std::list<N
         }
     }
 
-    /*
-    if( config->GetString( "QueueModel" ) == "PerRank" )
-    {
+    return conflict_request_number;
+}
 
-    }
-    else if( config->GetString( "QueueModel" ) == "PerBank" )
-    {
+unsigned int MemoryController::FindBankConflictReadRequestInQueueNumber( std::list<NVMainRequest *>& transactionQueue
+        , NVMainRequest *nextRequest)
+{
+    std::list<NVMainRequest *>::iterator it;
 
-    }
-    else if( config->GetString( "QueueModel" ) == "PerSubArray" )
-    {
+    unsigned int conflict_request_number = 0;
 
+    ncounter_t rank, bank, row, subarray, col;
+    //ncounter_t queueId = GetCommandQueueId( (*it)->address );
+    ncounter_t nextReq_rank, nextReq_bank, nextReq_row, nextReq_subarray, nextReq_col;
+    //ncounter_t nextReq_queueId = GetCommandQueueId( nextRequest->address );
+    nextRequest->address.GetTranslatedAddress( &nextReq_row, &nextReq_col, &nextReq_bank, &nextReq_rank, NULL, &nextReq_subarray );
+
+    for( it = transactionQueue.begin(); it != transactionQueue.end(); it++ )
+    {
+        (*it)->address.GetTranslatedAddress( &row, &col, &bank, &rank, NULL, &subarray );
+        if(bank == nextReq_bank && ((*it)->type == READ || (*it)->type == READ_PRECHARGE)){
+            conflict_request_number++;
+        }
     }
-    */
 
     return conflict_request_number;
 }
@@ -1773,7 +1791,9 @@ bool MemoryController::IssueMemoryCommands( NVMainRequest *req )
             req->flags |= NVMainRequest::FLAG_LAST_REQUEST;
         }
         */
-        req->WriteAround == false;
+        if (directWriteOn == true && req->type == WRITE && req->WriteAround == true) {
+            req->WriteAround = false;
+        }
         //Yongho Add End
         if( req->flags & NVMainRequest::FLAG_LAST_REQUEST && p->UsePrecharge )
         {
@@ -1811,10 +1831,10 @@ bool MemoryController::IssueMemoryCommands( NVMainRequest *req )
         rv = false;
     }
     //Yongho Add Start
+    /*
+    if ((rv == true) && (req->type == WRITE) ){
+        if ( (req->WriteAround == true) && (directWriteOn == true) {
 
-    if ((rv == true) && (req->type == WRITE)){
-        if ( req->WriteAround == true ){
-            
         }
         else if( req->WriteAround == false ) {
 
@@ -1822,45 +1842,68 @@ bool MemoryController::IssueMemoryCommands( NVMainRequest *req )
             //..
         }
     }
-
-
+    */
     //Yongho Add End
 
     /* Schedule wake event for memory commands if not scheduled. */
     //If input bankqueue(CommandQueue) Success then ScheduleCommandWake()
+    uint8_t *bitCountData_yh = new uint8_t[req->data.GetSize()];
+    ncounter_t bitCountWords_yh = 0;
+    ncounter_t numChangedBits_yh = 0;
+    ncounter_t numUnchangedBits_yh = 0;
     if( rv == true )
     {
-
-        //Yongho Add Start
-        if( req->oldData.IsValid( ) && directWriteOn == true && req->WriteAround == true )
-        {
-            uint8_t *bitCountData_yh = new uint8_t[req->data.GetSize()];
-
+        if(req->oldData.IsValid( ) && (req->type == WRITE || req->type == WRITE_PRECHARGE)){
             for( uint64_t bitCountByte_yh = 0; bitCountByte_yh < req->data.GetSize(); bitCountByte_yh++ )
             {
                 bitCountData_yh[bitCountByte_yh] = req->data.GetByte( bitCountByte_yh )
-                                                ^ req->oldData.GetByte( bitCountByte_yh );
+                                                   ^ req->oldData.GetByte( bitCountByte_yh );
             }
-
-            //ncounter_t bitCountWords_yh = req->data.GetSize()/4;
-            //ncounter_t numChangedBits_yh = CountBitsMLC1( 1, (uint32_t*)bitCountData_yh, bitCountWords_yh );
-            //ncounter_t numUnchangedBits_yh = req->data.GetSize()*8 - numChangedBits_yh;
-
-            //Testing
-            //std::cout << "numChangeBit : " << numChangedBits_yh << std::endl;
-            //std::cout << "numUnchangeBit : " << numUnchangedBits_yh << std::endl;
-            //
-        }else{
-            if(directWriteOn == true && req->WriteAround == true){
-                //std::cout << "Old-Data is Not-Valid" << std::endl;
-            }
-            //OldData is Not-Valid?
+            bitCountWords_yh = req->data.GetSize()/4;
+            numChangedBits_yh = CountBitsMLC1( 1, (uint32_t*)bitCountData_yh, bitCountWords_yh );
+            numUnchangedBits_yh = req->data.GetSize()*8 - numChangedBits_yh;
         }
+
+        //Yongho Add Start
+        if( req->oldData.IsValid( ) && directWriteOn == true && req->WriteAround == true && (req->type == WRITE || req->type == WRITE_PRECHARGE)){
+            //std::cout << "Case : 1 " << std::endl;
+            //std::cout << "numChangeBit : " << req->data.GetSize()*8 << std::endl;
+            //std::cout << "numUnchangeBit : " << 0 << std::endl << std::endl;
+            WriteAroundCount++;
+
+            FlipBitCount += req->data.GetSize()*8;
+            UnflipBitCount += 0;
+
+        }else if(req->oldData.IsValid( ) && directWriteOn == true && req->WriteAround == false && (req->type == WRITE || req->type == WRITE_PRECHARGE)) {
+            WriteOtherCount++;
+            FlipBitCount += numChangedBits_yh;
+            UnflipBitCount += numUnchangedBits_yh;
+            //Testing
+            //std::cout << "Case : 2 " << std::endl;
+            //std::cout << "numChangeBit : " << numChangedBits_yh << std::endl;
+            //std::cout << "numUnchangeBit : " << numUnchangedBits_yh << std::endl << std::endl;
+            //
+
+        }else if(req->oldData.IsValid( ) && directWriteOn == false && (req->type == WRITE || req->type == WRITE_PRECHARGE)) {
+            WriteOtherCount++;
+            FlipBitCount += numChangedBits_yh;
+            UnflipBitCount += numUnchangedBits_yh;
+            //std::cout << "Case : 3 " << std::endl;
+            //std::cout << "directWriteOff" << std::endl << std::endl;
+
+        }else if (!req->oldData.IsValid( ) && (req->type == WRITE || req->type == WRITE_PRECHARGE)){
+            //std::cout << "Case : 4 " << std::endl;
+            //std::cout << "Not Valid OldData" << std::endl;
+            //std::cout << "Old-Data is Not-Valid" << std::endl;
+        }else if((req->type == WRITE || req->type == WRITE_PRECHARGE)){
+            //std::cout << "Other Case" << std::endl;
+            //std::cout << "Case : 5? " << std::endl;
+        }
+
         //Yongho Add End
         ScheduleCommandWake( );
-
-
     }
+    delete bitCountData_yh;
 
     return rv;
 }

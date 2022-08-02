@@ -486,7 +486,7 @@ bool NVMain::IssueCommand( NVMainRequest *request )
             //Adding Part End
             
             uint32_t CompressDataSize = BDI(NewData, request->data.GetSize());
-            /*
+
             if(columnUpdateNum != 0){
                 if (CompressDataSize <=32){
                     compressByte[0]++;
@@ -653,10 +653,7 @@ bool NVMain::IssueCommand( NVMainRequest *request )
                 }
                 */
             }
-           
 
-
-        }
 
         PrintPreTrace( request );
     }

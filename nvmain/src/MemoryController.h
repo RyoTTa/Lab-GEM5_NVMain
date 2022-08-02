@@ -217,6 +217,7 @@ class MemoryController : public NVMObject
     unsigned int FindReadRequestInQueueNumber( std::list<NVMainRequest *>& transactionQueue);
     unsigned int FindWriteRequestInQueueNumber( std::list<NVMainRequest *>& transactionQueue);
     unsigned int FindBankConflictRequestInQueueNumber( std::list<NVMainRequest *>& transactionQueue, NVMainRequest *nextRequest);
+    unsigned int FindBankConflictReadRequestInQueueNumber( std::list<NVMainRequest *>& transactionQueue, NVMainRequest *nextRequest);
     //Yongho Add End
 
     /* IsLastRequest() tells whether no other request has the row buffer hit in the transaction queue */
@@ -283,6 +284,12 @@ class MemoryController : public NVMObject
     ncounter_t simulation_cycles;
 
     //Yongho Add Start
+    ncounter_t WriteAroundCount;
+    ncounter_t WriteOtherCount;
+    ncounter_t FlipBitCount;
+    ncounter_t UnflipBitCount;
+
+
     ncounter_t CountBitsMLC1( uint8_t value, uint32_t *data, ncounter_t words );
     ncounter_t Count32MLC1( uint32_t data );
     //Yongho Add End
